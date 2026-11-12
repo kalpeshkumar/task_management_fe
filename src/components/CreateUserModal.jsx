@@ -1,7 +1,7 @@
 // ============================================================================
 // CREATE USER MODAL
-// Portaled dialog allowing Admin to create users via POST /user/add.
-// Displays the generated setup token / activation link so the admin can copy it.
+// Portaled dialog allowing Admin to create users via POST /user/add with upfront password setup.
+// Includes Full Name, Email, Role, and Password with show/hide toggle.
 // ============================================================================
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -9,11 +9,11 @@ import {
   XMarkIcon,
   UserPlusIcon,
   ArrowPathIcon,
-  DocumentDuplicateIcon,
-  CheckIcon,
   UserIcon,
   EnvelopeIcon,
-  SparklesIcon,
+  LockClosedIcon,
+  EyeIcon,
+  EyeSlashIcon,
 } from '@heroicons/react/24/outline';
 import { userApi } from '../api/userApi';
 
@@ -21,10 +21,10 @@ export const CreateUserModal = ({ isOpen, onClose, onUserCreated }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [role, setRole] = useState('USER');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [createdResult, setCreatedResult] = useState(null);
-  const [copied, setCopied] = useState(false);
 
   // Lock background scroll when modal is open
   useEffect(() => {
@@ -56,9 +56,9 @@ export const CreateUserModal = ({ isOpen, onClose, onUserCreated }) => {
     setName('');
     setEmail('');
     setRole('USER');
+    setPassword('');
+    setShowPassword(false);
     setError('');
-    setCreatedResult(null);
-    setCopied(false);
     onClose();
   };
 
@@ -66,12 +66,45 @@ export const CreateUserModal = ({ isOpen, onClose, onUserCreated }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!name.trim()) {
+    setError('');
+
+    const trimmedName = name.trim();
+    const trimmedEmail = email.trim();
+
+    if (!trimmedName) {
       setError('Full name is required (letters only, min 2 chars)');
       return;
     }
-    if (!email.trim()) {
+    if (!/^[A-Za-z\s]{2,}$/.test(trimmedName)) {
+      setError('Name must contain only alphabets and be at least 2 characters');
+      return;
+    }
+    if (!trimmedEmail) {
       setError('Email address is required');
+      return;
+    }
+    if (!password) {
+      setError('Password is required');
+      return;
+    }
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters long');
+      return;
+    }
+    if (!/[A-Z]/.test(password)) {
+      setError('Password must contain at least one uppercase letter');
+      return;
+    }
+    if (!/[a-z]/.test(password)) {
+      setError('Password must contain at least one lowercase letter');
+      return;
+    }
+    if (!/[0-9]/.test(password)) {
+      setError('Password must contain at least one number');
+      return;
+    }
+    if (!/[@$!%*?&#]/.test(password)) {
+      setError('Password must contain at least one special character (@, $, !, %, *, ?, &, #)');
       return;
     }
 
@@ -79,34 +112,22 @@ export const CreateUserModal = ({ isOpen, onClose, onUserCreated }) => {
       setLoading(true);
       setError('');
       const res = await userApi.addUser({
-        name: name.trim(),
-        email: email.trim(),
+        name: trimmedName,
+        email: trimmedEmail,
         role,
+        password,
       });
 
-      setCreatedResult(res);
       if (onUserCreated) {
         onUserCreated(res);
       }
+      handleClose();
     } catch (err) {
-      console.error(err);
+      console.error('Failed to create user:', err);
       setError(err.response?.data?.message || err.message || 'Failed to create user');
     } finally {
       setLoading(false);
     }
-  };
-
-  const getSetupLink = () => {
-    if (!createdResult) return '';
-    const origin = window.location.origin;
-    return `${origin}/set-password?email=${encodeURIComponent(createdResult.email || '')}`;
-  };
-
-  const handleCopyLink = () => {
-    const link = getSetupLink();
-    navigator.clipboard.writeText(link);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2500);
   };
 
   const handleBackdropClick = (e) => {
@@ -122,7 +143,7 @@ export const CreateUserModal = ({ isOpen, onClose, onUserCreated }) => {
       role="dialog"
       aria-modal="true"
     >
-      <div className="modal-dialog-box modal-dialog-md">
+      <div className="modal-dialog-box modal-dialog-md" style={{ maxWidth: 460 }}>
         {/* Header */}
         <div className="modal-header-bar">
           <div className="modal-header-title-wrap">
@@ -130,13 +151,9 @@ export const CreateUserModal = ({ isOpen, onClose, onUserCreated }) => {
               <UserPlusIcon style={{ width: 20, height: 20 }} />
             </div>
             <div>
-              <h3 className="modal-title-text">
-                {createdResult ? 'User Created Successfully' : 'Add New User'}
-              </h3>
+              <h3 className="modal-title-text">Add New User</h3>
               <p className="modal-subtitle-text">
-                {createdResult
-                  ? 'First-login activation link generated'
-                  : 'Create a student or administrator profile'}
+                Create a student or administrator profile with login credentials
               </p>
             </div>
           </div>
@@ -149,158 +166,140 @@ export const CreateUserModal = ({ isOpen, onClose, onUserCreated }) => {
           </button>
         </div>
 
-        {/* Content Body */}
-        {createdResult ? (
-          <div className="modal-form-content" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-            <div style={{ padding: '1rem', background: '#FFEDD5', border: '1px solid #FED7AA', borderRadius: '4px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#9A3412', fontWeight: 600, marginBottom: '0.25rem' }}>
-                <SparklesIcon style={{ width: 16, height: 16, color: 'var(--brand-primary)' }} />
-                <span>Account Created: {createdResult.name}</span>
-              </div>
-              <p style={{ fontSize: '0.8125rem', color: '#C2410C' }}>
-                Per security policy, the password is not set upfront. Send the activation link below to <strong>{createdResult.email}</strong> to complete first-login password setup.
-              </p>
-            </div>
+        {/* Content Form Body */}
+        <form onSubmit={handleSubmit} className="modal-form-content">
+          {error && <div className="form-error-alert">{error}</div>}
 
-            <div className="form-field-group">
-              <label className="form-field-label">Activation / Setup Link</label>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <input
-                  type="text"
-                  readOnly
-                  value={getSetupLink()}
-                  className="form-text-input"
-                  style={{ background: '#F5F5F4', fontSize: '0.8125rem', color: 'var(--slate-700)', fontFamily: 'var(--font-mono)' }}
-                />
-                <button
-                  type="button"
-                  onClick={handleCopyLink}
-                  className="btn-primary-action"
-                  style={{ flexShrink: 0, padding: '0.5rem 1rem' }}
-                >
-                  {copied ? (
-                    <>
-                      <CheckIcon style={{ width: 16, height: 16 }} />
-                      <span>Copied!</span>
-                    </>
-                  ) : (
-                    <>
-                      <DocumentDuplicateIcon style={{ width: 16, height: 16 }} />
-                      <span>Copy Link</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-
-            {createdResult.setupToken && (
-              <div style={{ fontSize: '0.75rem', color: 'var(--slate-500)', wordBreak: 'break-all', fontFamily: 'var(--font-mono)' }}>
-                <strong>Raw Setup Token:</strong> <code>{createdResult.setupToken}</code>
-              </div>
-            )}
-
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
-              <button
-                type="button"
-                onClick={handleClose}
-                className="btn-primary-action"
-              >
-                Done
-              </button>
+          {/* Full Name */}
+          <div className="form-field-group">
+            <label className="form-field-label">
+              Full Name <span className="form-required-star">*</span>
+            </label>
+            <div className="login-input-wrapper">
+              <UserIcon className="login-input-icon" />
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="e.g. Jane Doe (letters only)"
+                required
+                className="login-field-input"
+                style={{ paddingLeft: '2.5rem' }}
+              />
             </div>
           </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="modal-form-content">
-            {error && <div className="form-error-alert">{error}</div>}
 
-            {/* Full Name */}
-            <div className="form-field-group">
-              <label className="form-field-label">
-                Full Name <span className="form-required-star">*</span>
-              </label>
-              <div className="login-input-wrapper">
-                <UserIcon className="login-input-icon" />
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. Jane Doe (letters only)"
-                  required
-                  className="login-field-input"
-                  style={{ paddingLeft: '2.5rem' }}
-                />
-              </div>
+          {/* Email Address */}
+          <div className="form-field-group">
+            <label className="form-field-label">
+              Email Address <span className="form-required-star">*</span>
+            </label>
+            <div className="login-input-wrapper">
+              <EnvelopeIcon className="login-input-icon" />
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="e.g. jane@studenttasks.com"
+                required
+                className="login-field-input"
+                style={{ paddingLeft: '2.5rem' }}
+              />
             </div>
+          </div>
 
-            {/* Email Address */}
-            <div className="form-field-group">
-              <label className="form-field-label">
-                Email Address <span className="form-required-star">*</span>
-              </label>
-              <div className="login-input-wrapper">
-                <EnvelopeIcon className="login-input-icon" />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="e.g. jane@studenttasks.com"
-                  required
-                  className="login-field-input"
-                  style={{ paddingLeft: '2.5rem' }}
-                />
-              </div>
-            </div>
+          {/* Role Selection */}
+          <div className="form-field-group">
+            <label className="form-field-label">
+              User Role <span className="form-required-star">*</span>
+            </label>
+            <select
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              className="form-select-input"
+            >
+              <option value="USER">User / Employee (Standard Access)</option>
+              <option value="ADMIN">Administrator (Full Access)</option>
+            </select>
+          </div>
 
-            {/* Role Selection */}
-            <div className="form-field-group">
-              <label className="form-field-label">
-                User Role <span className="form-required-star">*</span>
-              </label>
-              <select
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                className="form-select-input"
-              >
-                <option value="USER">User / Employee (Standard Access)</option>
-                <option value="ADMIN">Administrator (Full Access)</option>
-              </select>
-            </div>
-
-            {/* Note about password */}
-            <div style={{ padding: '0.75rem', background: '#F5F5F4', border: '1px solid var(--card-border)', borderRadius: '4px', fontSize: '0.75rem', color: 'var(--slate-600)' }}>
-              Initial password is not required. A 48-hour activation setup link will be generated automatically.
-            </div>
-
-            {/* Footer Buttons */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1rem' }}>
+          {/* Password */}
+          <div className="form-field-group">
+            <label className="form-field-label">
+              Password <span className="form-required-star">*</span>
+            </label>
+            <div className="login-input-wrapper">
+              <LockClosedIcon className="login-input-icon" />
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Min 8 chars, uppercase, lowercase, number, symbol"
+                required
+                className="login-field-input"
+                style={{ paddingLeft: '2.5rem', paddingRight: '2.5rem' }}
+              />
               <button
                 type="button"
-                onClick={handleClose}
-                className="btn-secondary-action"
-                style={{ padding: '0.5rem 1rem', borderRadius: '4px' }}
+                onClick={() => setShowPassword((prev) => !prev)}
+                style={{
+                  position: 'absolute',
+                  right: '0.75rem',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: 'var(--slate-400)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '0.25rem',
+                }}
+                title={showPassword ? 'Hide password' : 'Show password'}
+                tabIndex={-1}
               >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={loading}
-                className="btn-primary-action"
-              >
-                {loading ? (
-                  <>
-                    <ArrowPathIcon className="animate-spin" style={{ width: 16, height: 16 }} />
-                    <span>Creating User...</span>
-                  </>
+                {showPassword ? (
+                  <EyeSlashIcon style={{ width: 18, height: 18 }} />
                 ) : (
-                  <>
-                    <UserPlusIcon style={{ width: 16, height: 16 }} />
-                    <span>Create User</span>
-                  </>
+                  <EyeIcon style={{ width: 18, height: 18 }} />
                 )}
               </button>
             </div>
-          </form>
-        )}
+            <p style={{ fontSize: '0.75rem', color: 'var(--slate-500)', marginTop: '0.25rem' }}>
+              Must be at least 8 characters with uppercase, lowercase, number, and special character.
+            </p>
+          </div>
+
+          {/* Footer Buttons */}
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.25rem' }}>
+            <button
+              type="button"
+              onClick={handleClose}
+              className="btn-secondary-action"
+              style={{ padding: '0.5rem 1rem', borderRadius: '4px' }}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-primary-action"
+            >
+              {loading ? (
+                <>
+                  <ArrowPathIcon className="animate-spin" style={{ width: 16, height: 16 }} />
+                  <span>Creating User...</span>
+                </>
+              ) : (
+                <>
+                  <UserPlusIcon style={{ width: 16, height: 16 }} />
+                  <span>Create User</span>
+                </>
+              )}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

@@ -25,6 +25,7 @@ import { useAuth } from '../context/AuthContext';
 import { userApi } from '../api/userApi';
 import { CreateUserModal } from '../components/CreateUserModal';
 import { EditUserModal } from '../components/EditUserModal';
+import { DeleteUserModal } from '../components/DeleteUserModal';
 
 export const Users = () => {
   const { user: currentUser } = useAuth();
@@ -45,7 +46,7 @@ export const Users = () => {
 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [userToEdit, setUserToEdit] = useState(null);
-  const [deletingId, setDeletingId] = useState(null);
+  const [userToDelete, setUserToDelete] = useState(null);
   const [feedback, setFeedback] = useState({ message: '', type: '' });
 
   const showFeedback = (message, type = 'success') => {
@@ -94,27 +95,6 @@ export const Users = () => {
   useEffect(() => {
     loadUsers();
   }, [loadUsers]);
-
-  const handleDelete = async (user) => {
-    if (user.id === currentUser?.id) {
-      showFeedback('You cannot delete your own logged-in administrator account.', 'error');
-      return;
-    }
-
-    if (window.confirm(`Are you sure you want to delete user "${user.name}" (${user.email})?`)) {
-      try {
-        setDeletingId(user.id);
-        await userApi.deleteUser(user.id);
-        showFeedback(`User "${user.name}" deleted successfully.`, 'success');
-        loadUsers();
-      } catch (err) {
-        console.error(err);
-        showFeedback(err.response?.data?.message || 'Failed to delete user', 'error');
-      } finally {
-        setDeletingId(null);
-      }
-    }
-  };
 
   const formatDate = (dateStr) => {
     if (!dateStr) return 'Recently';
@@ -314,24 +294,30 @@ export const Users = () => {
 
                       {/* Actions */}
                       <td style={{ padding: '0.875rem 1.25rem', textAlign: 'right' }}>
-                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem' }}>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'flex-end' }}>
                           <button
+                            type="button"
                             onClick={() => setUserToEdit(u)}
                             title="Edit user profile"
-                            className="task-delete-btn"
-                            style={{ color: 'var(--slate-500)' }}
+                            className="table-action-btn"
                           >
                             <PencilSquareIcon style={{ width: 14, height: 14 }} />
+                            <span>Edit</span>
                           </button>
-                          {!isSelf && (
+                          {!isSelf ? (
                             <button
-                              onClick={() => handleDelete(u)}
-                              disabled={deletingId === u.id}
+                              type="button"
+                              onClick={() => setUserToDelete(u)}
                               title="Delete user"
-                              className="task-delete-btn"
+                              className="table-action-btn table-action-delete"
                             >
                               <TrashIcon style={{ width: 14, height: 14 }} />
+                              <span>Delete</span>
                             </button>
+                          ) : (
+                            <span style={{ fontSize: '0.75rem', color: 'var(--slate-400)', fontStyle: 'italic', padding: '0.25rem 0.5rem' }}>
+                              Current Account
+                            </span>
                           )}
                         </div>
                       </td>
@@ -379,7 +365,7 @@ export const Users = () => {
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
         onUserCreated={() => {
-          showFeedback('User account created with activation link!', 'success');
+          showFeedback('User account created successfully with password set!', 'success');
           loadUsers();
         }}
       />
@@ -391,6 +377,21 @@ export const Users = () => {
         user={userToEdit}
         onUserUpdated={(u) => {
           showFeedback(`User "${u.name}" updated successfully.`, 'success');
+          loadUsers();
+        }}
+        onUserDeleted={(u) => {
+          showFeedback(`User "${u.name}" deleted successfully.`, 'success');
+          loadUsers();
+        }}
+      />
+
+      {/* Delete User Confirmation Modal */}
+      <DeleteUserModal
+        isOpen={!!userToDelete}
+        onClose={() => setUserToDelete(null)}
+        user={userToDelete}
+        onUserDeleted={(u) => {
+          showFeedback(`User "${u.name}" deleted successfully.`, 'success');
           loadUsers();
         }}
       />

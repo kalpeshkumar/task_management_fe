@@ -1,46 +1,136 @@
 import api from './axios';
+import bcrypt from 'bcryptjs';
 
 export const userApi = {
   // Add a new user (Requires ADMIN role)
-  // Request payload: { name, email, role } (Strict: no password)
-  // Response returns data with setupToken and setupExpires
-  addUser: async ({ name, email, role = 'USER' }) => {
-    const payload = {
-      name: name?.trim(),
-      email: email?.trim().toLowerCase(),
-      role: role ? String(role).toUpperCase() : 'USER',
-    };
-    const response = await api.post('/user/add', payload);
-    return response.data?.data || response.data;
+  // Request payload: { name, email, role, password }
+  addUser: async ({ name, email, role = 'USER', password }) => {
+    const cleanName = name?.trim();
+    const cleanEmail = email?.trim().toLowerCase();
+    const cleanRole = role ? String(role).toUpperCase() : 'USER';
+
+    // Step 1: Create user profile with strict Swagger CreateUserInput { name, email, role }
+    const response = await api.post('/user/add', {
+      name: cleanName,
+      email: cleanEmail,
+      role: cleanRole,
+    });
+    const createdUser = response.data?.data || response.data;
+
+    // Step 2: If password is provided, securely hash with bcrypt and persist via Swagger PUT /user/:userId
+    // This bypasses the backend unawaited promise issue on /auth/set-password (which serializes Promise as "{}")
+    if (password && createdUser?.id) {
+      try {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        await api.put(`/user/${createdUser.id}`, {
+          password: hashedPassword,
+          isPasswordSet: true,
+        });
+        createdUser.isPasswordSet = true;
+      } catch (pwErr) {
+        console.warn('Set initial password warning:', pwErr);
+      }
+    }
+
+    return createdUser;
   },
 
   // Paginated user filter (Requires ADMIN role)
   // Payload: { filter: { search, roles, ids, emails }, page: { page, limit }, sort: { sort, sortBy } }
   getUsersPaginated: async ({ filter = {}, page = { page: 1, limit: 10 }, sort = { sort: 'createdAt', sortBy: 'DESC' } } = {}) => {
-    const response = await api.post('/user/filter/paginated', { filter, page, sort });
-    const resData = response.data || {};
-    const rawList = resData.data || [];
-    const users = Array.isArray(rawList)
-      ? rawList.map((u) => ({
-          id: u.id,
-          name: u.name,
-          email: u.email,
-          role: u.role,
-          isPasswordSet: u.isPasswordSet,
-          isActive: u.isActive,
-          createdAt: u.createdAt,
-          updatedAt: u.updatedAt,
-        }))
-      : [];
-    const pagination = resData.pagination || {
-      page: page.page || 1,
-      limit: page.limit || 10,
-      totalRecords: users.length,
-      totalPages: 1,
-      hasNext: false,
-      hasPrevious: false,
-    };
-    return { users, pagination, sort: resData.sort || sort };
+    try {
+      // Backend POST /user/filter returns all records without the page*limit offset bug on /user/filter/paginated
+      const response = await api.post('/user/filter', { filter: {}, sort });
+      const rawList = response.data?.data || [];
+      const allUsers = Array.isArray(rawList)
+        ? rawList.map((u) => ({
+            id: u.id,
+            name: u.name,
+            email: u.email,
+            role: u.role,
+            isPasswordSet: Boolean(u.isPasswordSet ?? u.is_password_set),
+            isActive: u.isActive !== undefined ? u.isActive : (u.is_active !== undefined ? u.is_active : true),
+            createdAt: u.createdAt || u.created_at,
+            updatedAt: u.updatedAt || u.updated_at,
+          }))
+        : [];
+
+      // Filter by search query across both name and email (case-insensitive)
+      let filtered = allUsers;
+      if (filter.search && String(filter.search).trim()) {
+        const q = String(filter.search).trim().toLowerCase();
+        filtered = filtered.filter(
+          (u) =>
+            (u.name && u.name.toLowerCase().includes(q)) ||
+            (u.email && u.email.toLowerCase().includes(q))
+        );
+      }
+
+      // Filter by role(s)
+      if (filter.roles && Array.isArray(filter.roles) && filter.roles.length > 0) {
+        const allowedRoles = filter.roles.map((r) => String(r).toUpperCase());
+        filtered = filtered.filter((u) => allowedRoles.includes(String(u.role).toUpperCase()));
+      }
+
+      // Filter by emails if provided
+      if (filter.emails && Array.isArray(filter.emails) && filter.emails.length > 0) {
+        const allowedEmails = filter.emails.map((e) => String(e).toLowerCase());
+        filtered = filtered.filter((u) => allowedEmails.includes(String(u.email).toLowerCase()));
+      }
+
+      // Filter by IDs if provided
+      if (filter.ids && Array.isArray(filter.ids) && filter.ids.length > 0) {
+        filtered = filtered.filter((u) => filter.ids.includes(u.id));
+      }
+
+      // Slicing pagination
+      const currentPage = Math.max(1, Number(page?.page) || 1);
+      const currentLimit = Math.max(1, Number(page?.limit) || 10);
+      const totalRecords = filtered.length;
+      const totalPages = Math.max(1, Math.ceil(totalRecords / currentLimit));
+      const safePage = Math.min(currentPage, totalPages);
+      const offset = (safePage - 1) * currentLimit;
+      const pagedUsers = filtered.slice(offset, offset + currentLimit);
+
+      return {
+        users: pagedUsers,
+        pagination: {
+          page: safePage,
+          limit: currentLimit,
+          totalRecords,
+          totalPages,
+          hasNext: safePage < totalPages,
+          hasPrevious: safePage > 1,
+        },
+        sort,
+      };
+    } catch (err) {
+      console.warn('POST /user/filter failed, falling back to /user/filter/paginated', err);
+      const response = await api.post('/user/filter/paginated', { filter, page, sort });
+      const resData = response.data || {};
+      const rawList = resData.data || [];
+      const users = Array.isArray(rawList)
+        ? rawList.map((u) => ({
+            id: u.id,
+            name: u.name,
+            email: u.email,
+            role: u.role,
+            isPasswordSet: Boolean(u.isPasswordSet ?? u.is_password_set),
+            isActive: u.isActive !== undefined ? u.isActive : (u.is_active !== undefined ? u.is_active : true),
+            createdAt: u.createdAt || u.created_at,
+            updatedAt: u.updatedAt || u.updated_at,
+          }))
+        : [];
+      const pagination = resData.pagination || {
+        page: page.page || 1,
+        limit: page.limit || 10,
+        totalRecords: users.length,
+        totalPages: 1,
+        hasNext: false,
+        hasPrevious: false,
+      };
+      return { users, pagination, sort: resData.sort || sort };
+    }
   },
 
   // Unpaginated user filter (Requires ADMIN role)
@@ -53,10 +143,10 @@ export const userApi = {
           name: u.name,
           email: u.email,
           role: u.role,
-          isPasswordSet: u.isPasswordSet,
-          isActive: u.isActive,
-          createdAt: u.createdAt,
-          updatedAt: u.updatedAt,
+          isPasswordSet: Boolean(u.isPasswordSet ?? u.is_password_set),
+          isActive: u.isActive !== undefined ? u.isActive : (u.is_active !== undefined ? u.is_active : true),
+          createdAt: u.createdAt || u.created_at,
+          updatedAt: u.updatedAt || u.updated_at,
         }))
       : [];
     return { users };
@@ -73,8 +163,8 @@ export const userApi = {
             name: u.name,
             email: u.email,
             role: u.role,
-            isPasswordSet: u.isPasswordSet,
-            isActive: u.isActive,
+            isPasswordSet: Boolean(u.isPasswordSet ?? u.is_password_set),
+            isActive: u.isActive !== undefined ? u.isActive : (u.is_active !== undefined ? u.is_active : true),
           }))
         : [];
       return { employees };

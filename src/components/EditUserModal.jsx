@@ -10,15 +10,20 @@ import {
   ArrowPathIcon,
   UserIcon,
   EnvelopeIcon,
+  TrashIcon,
 } from '@heroicons/react/24/outline';
 import { userApi } from '../api/userApi';
+import { useAuth } from '../context/AuthContext';
+import { DeleteUserModal } from './DeleteUserModal';
 
-export const EditUserModal = ({ isOpen, onClose, user, onUserUpdated }) => {
+export const EditUserModal = ({ isOpen, onClose, user, onUserUpdated, onUserDeleted }) => {
+  const { user: currentUser } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [role, setRole] = useState('USER');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -179,32 +184,79 @@ export const EditUserModal = ({ isOpen, onClose, user, onUserUpdated }) => {
           </div>
 
           {/* Footer Buttons */}
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1rem' }}>
-            <button
-              type="button"
-              onClick={onClose}
-              className="btn-secondary-action"
-              style={{ padding: '0.5rem 1rem', borderRadius: '4px' }}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-primary-action"
-            >
-              {loading ? (
-                <>
-                  <ArrowPathIcon className="animate-spin" style={{ width: 16, height: 16 }} />
-                  <span>Saving...</span>
-                </>
-              ) : (
-                <span>Save Changes</span>
-              )}
-            </button>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: currentUser?.id === user?.id ? 'flex-end' : 'space-between',
+              alignItems: 'center',
+              marginTop: '1rem',
+              borderTop: '1px solid var(--slate-100)',
+              paddingTop: '1rem',
+            }}
+          >
+            {currentUser?.id !== user?.id && (
+              <button
+                type="button"
+                onClick={() => setShowDeleteModal(true)}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.375rem',
+                  color: '#DC2626',
+                  background: 'transparent',
+                  padding: '0.5rem 0.75rem',
+                  borderRadius: '4px',
+                  fontSize: '0.8125rem',
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  border: '1px solid transparent',
+                  transition: 'background-color 0.15s ease',
+                }}
+              >
+                <TrashIcon style={{ width: 14, height: 14 }} />
+                <span>Delete User</span>
+              </button>
+            )}
+
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <button
+                type="button"
+                onClick={onClose}
+                className="btn-secondary-action"
+                style={{ padding: '0.5rem 1rem', borderRadius: '4px' }}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="btn-primary-action"
+              >
+                {loading ? (
+                  <>
+                    <ArrowPathIcon className="animate-spin" style={{ width: 16, height: 16 }} />
+                    <span>Saving...</span>
+                  </>
+                ) : (
+                  <span>Save Changes</span>
+                )}
+              </button>
+            </div>
           </div>
         </form>
       </div>
+
+      {/* Delete User Confirmation Modal */}
+      <DeleteUserModal
+        isOpen={showDeleteModal}
+        user={user}
+        onClose={() => setShowDeleteModal(false)}
+        onUserDeleted={(deletedUser) => {
+          setShowDeleteModal(false);
+          if (onUserDeleted) onUserDeleted(deletedUser);
+          onClose();
+        }}
+      />
     </div>
   );
 };
