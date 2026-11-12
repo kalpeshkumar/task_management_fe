@@ -16,11 +16,13 @@ import {
   FolderIcon,
 } from '@heroicons/react/24/outline';
 import { useProjects } from '../context/ProjectContext';
+import { useAuth } from '../context/AuthContext';
 import { userApi } from '../api/userApi';
 import { taskApi } from '../api/taskApi';
 
 export const CreateTaskModal = ({ isOpen, onClose, onTaskCreated }) => {
   const { projects, selectedProjectId } = useProjects();
+  const { user, isAdmin } = useAuth();
   const [employees, setEmployees] = useState([]);
   const [loadingEmployees, setLoadingEmployees] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -63,19 +65,29 @@ export const CreateTaskModal = ({ isOpen, onClose, onTaskCreated }) => {
 
   useEffect(() => {
     if (isOpen) {
+      const defaultProjectId = selectedProjectId
+        ? String(selectedProjectId)
+        : projects[0]?.id
+        ? String(projects[0].id)
+        : '';
+      const defaultAssignedTo = !isAdmin && user?.id ? String(user.id) : '';
+
       setFormData((prev) => ({
         ...prev,
-        project_id: selectedProjectId ? String(selectedProjectId) : projects[0]?.id ? String(projects[0].id) : '',
+        project_id: defaultProjectId,
         title: '',
         description: '',
-        assigned_to: '',
+        assigned_to: defaultAssignedTo,
         status: 'Todo',
         due_date: new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
       }));
       setError('');
-      loadEmployees();
+
+      if (isAdmin) {
+        loadEmployees();
+      }
     }
-  }, [isOpen, selectedProjectId, projects]);
+  }, [isOpen, selectedProjectId, projects, isAdmin, user]);
 
   const loadEmployees = async () => {
     try {
@@ -190,7 +202,9 @@ export const CreateTaskModal = ({ isOpen, onClose, onTaskCreated }) => {
                 required
                 className="form-select-input"
               >
-                <option value="" disabled>Select a project</option>
+                <option value="" disabled>
+                  {projects.length === 0 ? 'No assigned projects available' : 'Select a project'}
+                </option>
                 {projects.map((proj) => (
                   <option key={proj.id} value={proj.id}>
                     {proj.name}
@@ -203,22 +217,35 @@ export const CreateTaskModal = ({ isOpen, onClose, onTaskCreated }) => {
               <label className="form-field-label">
                 <UserIcon style={{ width: 14, height: 14, color: 'var(--slate-400)' }} /> Assign To <span className="form-required-star">*</span>
               </label>
-              <select
-                value={formData.assigned_to}
-                onChange={(e) => setFormData({ ...formData, assigned_to: e.target.value })}
-                required
-                disabled={loadingEmployees}
-                className="form-select-input"
-              >
-                <option value="" disabled>
-                  {loadingEmployees ? 'Loading employees...' : 'Select an employee'}
-                </option>
-                {employees.map((emp) => (
-                  <option key={emp.id} value={emp.id}>
-                    {emp.name} ({emp.email})
+              {!isAdmin ? (
+                <select
+                  value={formData.assigned_to}
+                  disabled
+                  className="form-select-input"
+                  style={{ backgroundColor: '#F8FAFC', cursor: 'not-allowed', color: 'var(--slate-700)' }}
+                >
+                  <option value={user?.id}>
+                    {user?.name || user?.email} (You)
                   </option>
-                ))}
-              </select>
+                </select>
+              ) : (
+                <select
+                  value={formData.assigned_to}
+                  onChange={(e) => setFormData({ ...formData, assigned_to: e.target.value })}
+                  required
+                  disabled={loadingEmployees}
+                  className="form-select-input"
+                >
+                  <option value="" disabled>
+                    {loadingEmployees ? 'Loading employees...' : 'Select an employee'}
+                  </option>
+                  {employees.map((emp) => (
+                    <option key={emp.id} value={emp.id}>
+                      {emp.name} ({emp.email})
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
           </div>
 

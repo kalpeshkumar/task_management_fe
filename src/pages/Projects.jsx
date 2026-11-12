@@ -141,7 +141,11 @@ export const Projects = () => {
           </div>
           <h4 className="empty-state-heading">No projects found</h4>
           <p className="empty-state-text">
-            {searchQuery ? 'Try adjusting your search criteria.' : 'Create a new project to start organizing student tasks.'}
+            {searchQuery
+              ? 'Try adjusting your search criteria.'
+              : isAdmin
+              ? 'Create a new project to start organizing student tasks.'
+              : 'You do not have any projects assigned to you yet.'}
           </p>
           {isAdmin && !searchQuery && (
             <button

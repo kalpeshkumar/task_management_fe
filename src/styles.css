@@ -761,12 +761,16 @@ textarea {
 }
 
 .project-nav-item.active {
-  background-color: #262220;
-  color: #FBF9F5;
+  background-color: rgba(234, 88, 12, 0.14);
+  color: #EA580C;
   font-weight: 600;
-  border-left: 3px solid #EA580C;
-  border-radius: 0 4px 4px 0;
+  border: 1px solid rgba(234, 88, 12, 0.35);
+  border-radius: 4px;
   box-shadow: none;
+}
+
+.project-nav-item.active .project-item-left {
+  color: #EA580C;
 }
 
 .project-item-left {

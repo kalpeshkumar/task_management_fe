@@ -36,11 +36,11 @@ export const Sidebar = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const isTasksPage = location.pathname === '/tasks';
+
   const handleProjectClick = (projectId) => {
     setSelectedProjectId(projectId);
-    if (location.pathname !== '/tasks' && location.pathname !== '/dashboard') {
-      navigate('/tasks');
-    }
+    navigate('/tasks');
     if (onClose) onClose();
   };
 
@@ -89,7 +89,10 @@ export const Sidebar = ({ isOpen, onClose }) => {
           </p>
           <NavLink
             to="/dashboard"
-            onClick={onClose}
+            onClick={() => {
+              setSelectedProjectId(null);
+              if (onClose) onClose();
+            }}
             className={({ isActive }) =>
               `sidebar-nav-link ${isActive ? 'active' : ''}`
             }
@@ -111,7 +114,10 @@ export const Sidebar = ({ isOpen, onClose }) => {
 
           <NavLink
             to="/projects"
-            onClick={onClose}
+            onClick={() => {
+              setSelectedProjectId(null);
+              if (onClose) onClose();
+            }}
             className={({ isActive }) =>
               `sidebar-nav-link ${isActive ? 'active' : ''}`
             }
@@ -123,7 +129,10 @@ export const Sidebar = ({ isOpen, onClose }) => {
           {isAdmin && (
             <NavLink
               to="/users"
-              onClick={onClose}
+              onClick={() => {
+                setSelectedProjectId(null);
+                if (onClose) onClose();
+              }}
               className={({ isActive }) =>
                 `sidebar-nav-link ${isActive ? 'active' : ''}`
               }
@@ -156,7 +165,7 @@ export const Sidebar = ({ isOpen, onClose }) => {
             {/* All Projects option */}
             <button
               onClick={() => handleProjectClick(null)}
-              className={`project-nav-item ${selectedProjectId === null ? 'active' : ''}`}
+              className={`project-nav-item ${isTasksPage && selectedProjectId === null ? 'active' : ''}`}
             >
               <div className="project-item-left">
                 <Square3Stack3DIcon style={{ width: 16, height: 16, flexShrink: 0 }} />
@@ -173,11 +182,11 @@ export const Sidebar = ({ isOpen, onClose }) => {
               </p>
             ) : projects.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '1rem 0.5rem', color: 'var(--slate-400)', fontSize: '0.75rem' }}>
-                No projects yet.
+                {isAdmin ? 'No projects yet.' : 'No assigned projects.'}
               </div>
             ) : (
               projects.map((proj) => {
-                const isSelected = selectedProjectId === proj.id;
+                const isSelected = isTasksPage && selectedProjectId === proj.id;
                 return (
                   <div
                     key={proj.id}

@@ -109,15 +109,17 @@ export const Dashboard = () => {
 
   // Group tasks by project for the project-wise bar chart
   const projectTaskDistribution = useMemo(() => {
+    if (!projects || projects.length === 0) return [];
+
     const targetProjects = selectedProjectId
-      ? projects.filter((p) => p.id === selectedProjectId)
+      ? projects.filter((p) => Number(p.id) === Number(selectedProjectId))
       : projects;
 
     const projectMap = new Map();
 
-    // Seed map with project list
+    // Seed map with authorized project list
     targetProjects.forEach((p) => {
-      projectMap.set(p.id, {
+      projectMap.set(Number(p.id), {
         id: p.id,
         name: p.name,
         total: 0,
@@ -129,19 +131,8 @@ export const Dashboard = () => {
 
     // Aggregate tasks into their respective projects
     tasks.forEach((t) => {
-      if (!projectMap.has(t.project_id)) {
-        if (!selectedProjectId || t.project_id === selectedProjectId) {
-          projectMap.set(t.project_id, {
-            id: t.project_id,
-            name: t.project_name || `Project #${t.project_id}`,
-            total: 0,
-            todo: 0,
-            in_progress: 0,
-            completed: 0,
-          });
-        }
-      }
-      const entry = projectMap.get(t.project_id);
+      const pid = Number(t.project_id ?? t.projectId);
+      const entry = projectMap.get(pid);
       if (entry) {
         entry.total += 1;
         if (t.status === 'Todo') entry.todo += 1;

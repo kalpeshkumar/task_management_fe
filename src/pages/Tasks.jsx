@@ -27,7 +27,7 @@ import { DeleteProjectModal } from '../components/DeleteProjectModal';
 
 export const Tasks = () => {
   const { isAdmin } = useAuth();
-  const { selectedProjectId, selectedProject, setSelectedProjectId, fetchProjects } = useProjects();
+  const { selectedProjectId, selectedProject, setSelectedProjectId, fetchProjects, projects } = useProjects();
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -37,6 +37,16 @@ export const Tasks = () => {
   const [projectToEdit, setProjectToEdit] = useState(null);
   const [projectToDelete, setProjectToDelete] = useState(null);
   const [feedback, setFeedback] = useState({ message: '', type: '' });
+
+  // Safeguard: Ensure employees can only view assigned projects
+  useEffect(() => {
+    if (!isAdmin && selectedProjectId && projects.length > 0) {
+      const isAllowed = projects.some((p) => Number(p.id) === Number(selectedProjectId));
+      if (!isAllowed) {
+        setSelectedProjectId(null);
+      }
+    }
+  }, [isAdmin, selectedProjectId, projects, setSelectedProjectId]);
 
   // Load all tasks for the board (optionally filtered by selected project)
   const loadTasks = useCallback(async () => {

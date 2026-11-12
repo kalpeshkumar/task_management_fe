@@ -5,7 +5,7 @@ import { useAuth } from './AuthContext';
 const ProjectContext = createContext(null);
 
 export const ProjectProvider = ({ children }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user, isAdmin } = useAuth();
   const [projects, setProjects] = useState([]);
   const [selectedProjectId, setSelectedProjectId] = useState(null); // null means "All Projects"
   const [loading, setLoading] = useState(false);
@@ -15,7 +15,15 @@ export const ProjectProvider = ({ children }) => {
     try {
       setLoading(true);
       const data = await projectApi.getProjects();
-      setProjects(data.projects || []);
+      const list = data.projects || [];
+      setProjects(list);
+
+      // Validate selectedProjectId: If the selected project is no longer in the authorized projects list, reset it
+      setSelectedProjectId((currentSelected) => {
+        if (!currentSelected) return null;
+        const exists = list.some((p) => Number(p.id) === Number(currentSelected));
+        return exists ? currentSelected : null;
+      });
     } catch (err) {
       console.error('Failed to load projects:', err);
     } finally {
@@ -30,7 +38,7 @@ export const ProjectProvider = ({ children }) => {
       setProjects([]);
       setSelectedProjectId(null);
     }
-  }, [isAuthenticated, fetchProjects]);
+  }, [isAuthenticated, user?.id, isAdmin, fetchProjects]);
 
   const addProject = async (projectData) => {
     const res = await projectApi.createProject(projectData);
@@ -60,7 +68,7 @@ export const ProjectProvider = ({ children }) => {
     }
   };
 
-  const selectedProject = projects.find((p) => p.id === selectedProjectId) || null;
+  const selectedProject = projects.find((p) => Number(p.id) === Number(selectedProjectId)) || null;
 
   return (
     <ProjectContext.Provider

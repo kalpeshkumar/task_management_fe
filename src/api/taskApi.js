@@ -1,8 +1,10 @@
 import api from './axios';
 import { normalizeTask } from './normalizers';
+import { getCurrentAuthUser, isCurrentUserAdmin } from './authHelper';
 
 export const taskApi = {
-  // List all tasks, optionally filtered by projectId
+  // List tasks, optionally filtered by projectId.
+  // For employees (non-admin), exclusively returns tasks assigned to the logged-in user.
   getTasks: async (projectId = null) => {
     const params = projectId ? { projectId } : {};
     const response = await api.get('/task', { params });
@@ -11,37 +13,68 @@ export const taskApi = {
       response.data?.tasks ||
       response.data?.data ||
       [];
-    const tasks = Array.isArray(rawList) ? rawList.map(normalizeTask) : [];
+    let tasks = Array.isArray(rawList) ? rawList.map(normalizeTask) : [];
+
+    const currentUser = getCurrentAuthUser();
+    if (currentUser && !isCurrentUserAdmin()) {
+      const currentUserId = Number(currentUser.id);
+      tasks = tasks.filter((t) => {
+        const assignedId = Number(t.assignedTo ?? t.assigned_to);
+        return assignedId === currentUserId;
+      });
+    }
+
     return { tasks };
   },
 
-  // Task status counts summary
+  // Task status counts summary.
+  // Computes statistics directly from scoped tasks to ensure complete role authorization
+  // and prevent route collision issues with /task/:taskId.
   getStats: async (projectId = null) => {
-    const params = projectId ? { projectId } : {};
-    const response = await api.get('/task/stats', { params });
-    const rawStats =
-      response.data?.data?.stats ||
-      response.data?.stats ||
-      response.data?.data || {
-        total: 0,
-        todo: 0,
-        in_progress: 0,
-        completed: 0,
+    try {
+      const { tasks } = await taskApi.getTasks(projectId);
+      const total = tasks.length;
+      const todo = tasks.filter((t) => t.status === 'Todo').length;
+      const in_progress = tasks.filter((t) => t.status === 'In Progress').length;
+      const completed = tasks.filter((t) => t.status === 'Completed').length;
+      return {
+        stats: {
+          total,
+          todo,
+          in_progress,
+          completed,
+        },
       };
-    return { stats: rawStats };
+    } catch (err) {
+      console.error('Failed to compute stats:', err);
+      return {
+        stats: {
+          total: 0,
+          todo: 0,
+          in_progress: 0,
+          completed: 0,
+        },
+      };
+    }
   },
 
   // Create a new task (Available to Admin and Employee)
   // Payload: { title, description, projectId, assignedTo, status, dueDate }
   createTask: async (taskData) => {
+    const currentUser = getCurrentAuthUser();
+    const isAdmin = isCurrentUserAdmin();
+
+    let targetAssignedTo = taskData.assignedTo || taskData.assigned_to;
+    if (!isAdmin && currentUser) {
+      // Employees can only create tasks assigned to themselves
+      targetAssignedTo = currentUser.id;
+    }
+
     const payload = {
       title: taskData.title?.trim(),
       description: taskData.description ? taskData.description.trim() : null,
       projectId: Number(taskData.projectId ?? taskData.project_id),
-      assignedTo:
-        taskData.assignedTo || taskData.assigned_to
-          ? Number(taskData.assignedTo || taskData.assigned_to)
-          : null,
+      assignedTo: targetAssignedTo ? Number(targetAssignedTo) : null,
       status: taskData.status || 'Todo',
       dueDate: taskData.dueDate || taskData.due_date || null,
     };
@@ -53,11 +86,23 @@ export const taskApi = {
     return { task: normalizeTask(rawTask) };
   },
 
-  // Get task details by ID
+  // Get task details by ID.
+  // Enforces authorization: Employees can only view their own assigned task details.
   getTaskById: async (taskId) => {
     const response = await api.get(`/task/${taskId}`);
     const rawTask = response.data?.data || response.data;
-    return { task: normalizeTask(rawTask) };
+    const task = normalizeTask(rawTask);
+
+    const currentUser = getCurrentAuthUser();
+    if (currentUser && !isCurrentUserAdmin()) {
+      const currentUserId = Number(currentUser.id);
+      const assignedId = Number(task.assignedTo ?? task.assigned_to);
+      if (assignedId !== currentUserId) {
+        throw new Error('Unauthorized: You can only view tasks assigned to you.');
+      }
+    }
+
+    return { task };
   },
 
   // Update task details (Requires ADMIN role in Swagger)
@@ -103,7 +148,14 @@ export const taskApi = {
   filterTasks: async ({ filter = {}, sort = { sort: 'createdAt', sortBy: 'DESC' } } = {}) => {
     const response = await api.post('/task/filter', { filter, sort });
     const rawList = response.data?.data || [];
-    const tasks = Array.isArray(rawList) ? rawList.map(normalizeTask) : [];
+    let tasks = Array.isArray(rawList) ? rawList.map(normalizeTask) : [];
+
+    const currentUser = getCurrentAuthUser();
+    if (currentUser && !isCurrentUserAdmin()) {
+      const currentUserId = Number(currentUser.id);
+      tasks = tasks.filter((t) => Number(t.assignedTo ?? t.assigned_to) === currentUserId);
+    }
+
     return { tasks };
   },
 
@@ -112,7 +164,14 @@ export const taskApi = {
     const response = await api.post('/task/filter/paginated', { filter, page, sort });
     const resData = response.data || {};
     const rawList = resData.data || [];
-    const tasks = Array.isArray(rawList) ? rawList.map(normalizeTask) : [];
+    let tasks = Array.isArray(rawList) ? rawList.map(normalizeTask) : [];
+
+    const currentUser = getCurrentAuthUser();
+    if (currentUser && !isCurrentUserAdmin()) {
+      const currentUserId = Number(currentUser.id);
+      tasks = tasks.filter((t) => Number(t.assignedTo ?? t.assigned_to) === currentUserId);
+    }
+
     const pagination = resData.pagination || {
       page: page.page || 1,
       limit: page.limit || 10,
