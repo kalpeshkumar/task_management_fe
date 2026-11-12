@@ -7,20 +7,20 @@
 import React, { useState } from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import {
-  LayoutDashboard,
-  Kanban,
-  FolderPlus,
-  LogOut,
-  Folder,
-  Layers,
-  Shield,
-  UserCheck,
-  CheckCircle2,
-  X,
-  Users as UsersIcon,
-  KeyRound,
-  Trash2,
-} from 'lucide-react';
+  Squares2X2Icon,
+  ViewColumnsIcon,
+  FolderPlusIcon,
+  ArrowRightOnRectangleIcon,
+  FolderIcon,
+  Square3Stack3DIcon,
+  ShieldCheckIcon,
+  UserIcon,
+  CheckBadgeIcon,
+  XMarkIcon,
+  UsersIcon,
+  KeyIcon,
+  TrashIcon,
+} from '@heroicons/react/24/outline';
 import { useAuth } from '../context/AuthContext';
 import { useProjects } from '../context/ProjectContext';
 import { CreateProjectModal } from './CreateProjectModal';
@@ -64,7 +64,7 @@ export const Sidebar = ({ isOpen, onClose }) => {
         <div className="sidebar-header">
           <div className="brand-wrapper">
             <div className="brand-icon-box">
-              <CheckCircle2 style={{ width: 20, height: 20 }} />
+              <CheckBadgeIcon style={{ width: 22, height: 22 }} />
             </div>
             <div>
               <h1 className="brand-title">
@@ -78,7 +78,7 @@ export const Sidebar = ({ isOpen, onClose }) => {
             className="sidebar-close-btn"
             title="Close navigation"
           >
-            <X style={{ width: 20, height: 20 }} />
+            <XMarkIcon style={{ width: 20, height: 20 }} />
           </button>
         </div>
 
@@ -94,7 +94,7 @@ export const Sidebar = ({ isOpen, onClose }) => {
               `sidebar-nav-link ${isActive ? 'active' : ''}`
             }
           >
-            <LayoutDashboard className="sidebar-nav-icon" />
+            <Squares2X2Icon className="sidebar-nav-icon" />
             <span>Dashboard</span>
           </NavLink>
 
@@ -105,7 +105,7 @@ export const Sidebar = ({ isOpen, onClose }) => {
               `sidebar-nav-link ${isActive ? 'active' : ''}`
             }
           >
-            <Kanban className="sidebar-nav-icon" />
+            <ViewColumnsIcon className="sidebar-nav-icon" />
             <span>Tasks Board</span>
           </NavLink>
 
@@ -116,7 +116,7 @@ export const Sidebar = ({ isOpen, onClose }) => {
               `sidebar-nav-link ${isActive ? 'active' : ''}`
             }
           >
-            <Folder className="sidebar-nav-icon" />
+            <FolderIcon className="sidebar-nav-icon" />
             <span>Projects</span>
           </NavLink>
 
@@ -146,7 +146,7 @@ export const Sidebar = ({ isOpen, onClose }) => {
                 title="Create Project"
                 className="create-project-btn"
               >
-                <FolderPlus style={{ width: 14, height: 14 }} />
+                <FolderPlusIcon style={{ width: 14, height: 14 }} />
                 <span>New</span>
               </button>
             )}
@@ -159,7 +159,7 @@ export const Sidebar = ({ isOpen, onClose }) => {
               className={`project-nav-item ${selectedProjectId === null ? 'active' : ''}`}
             >
               <div className="project-item-left">
-                <Layers style={{ width: 16, height: 16, flexShrink: 0 }} />
+                <Square3Stack3DIcon style={{ width: 16, height: 16, flexShrink: 0 }} />
                 <span>All Projects</span>
               </div>
               <span className="project-badge-count">
@@ -194,7 +194,7 @@ export const Sidebar = ({ isOpen, onClose }) => {
                       style={{ flex: 1, minWidth: 0 }}
                     >
                       <div className="project-item-left" style={{ minWidth: 0, overflow: 'hidden' }}>
-                        <Folder style={{ width: 16, height: 16, flexShrink: 0 }} />
+                        <FolderIcon style={{ width: 16, height: 16, flexShrink: 0 }} />
                         <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {proj.name}
                         </span>
@@ -235,7 +235,7 @@ export const Sidebar = ({ isOpen, onClose }) => {
                           e.currentTarget.style.backgroundColor = 'transparent';
                         }}
                       >
-                        <Trash2 style={{ width: 13, height: 13 }} />
+                        <TrashIcon style={{ width: 14, height: 14 }} />
                       </button>
                     )}
                   </div>
@@ -259,11 +259,11 @@ export const Sidebar = ({ isOpen, onClose }) => {
                 <div>
                   {isAdmin ? (
                     <span className="user-role-tag user-role-admin">
-                      <Shield style={{ width: 10, height: 10 }} /> Admin
+                      <ShieldCheckIcon style={{ width: 12, height: 12 }} /> Admin
                     </span>
                   ) : (
                     <span className="user-role-tag user-role-employee">
-                      <UserCheck style={{ width: 10, height: 10 }} /> Employee
+                      <UserIcon style={{ width: 12, height: 12 }} /> Employee
                     </span>
                   )}
                 </div>
@@ -275,16 +275,16 @@ export const Sidebar = ({ isOpen, onClose }) => {
                 onClick={() => setShowChangePasswordModal(true)}
                 title="Change Password"
                 className="logout-btn"
-                style={{ color: 'var(--slate-500)' }}
+                style={{ color: 'var(--slate-400)' }}
               >
-                <KeyRound style={{ width: 16, height: 16 }} />
+                <KeyIcon style={{ width: 16, height: 16 }} />
               </button>
               <button
                 onClick={handleLogout}
                 title="Logout"
                 className="logout-btn"
               >
-                <LogOut style={{ width: 16, height: 16 }} />
+                <ArrowRightOnRectangleIcon style={{ width: 16, height: 16 }} />
               </button>
             </div>
           </div>

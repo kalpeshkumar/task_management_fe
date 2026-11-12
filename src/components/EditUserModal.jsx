@@ -4,7 +4,13 @@
 // ============================================================================
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { X, UserCheck, Loader2, User, Mail } from 'lucide-react';
+import {
+  XMarkIcon,
+  CheckBadgeIcon,
+  ArrowPathIcon,
+  UserIcon,
+  EnvelopeIcon,
+} from '@heroicons/react/24/outline';
 import { userApi } from '../api/userApi';
 
 export const EditUserModal = ({ isOpen, onClose, user, onUserUpdated }) => {
@@ -101,7 +107,7 @@ export const EditUserModal = ({ isOpen, onClose, user, onUserUpdated }) => {
         <div className="modal-header-bar">
           <div className="modal-header-title-wrap">
             <div className="modal-header-icon-box">
-              <UserCheck style={{ width: 20, height: 20 }} />
+              <CheckBadgeIcon style={{ width: 20, height: 20 }} />
             </div>
             <div>
               <h3 className="modal-title-text">Edit User</h3>
@@ -113,7 +119,7 @@ export const EditUserModal = ({ isOpen, onClose, user, onUserUpdated }) => {
             className="modal-close-icon-btn"
             title="Close"
           >
-            <X style={{ width: 20, height: 20 }} />
+            <XMarkIcon style={{ width: 20, height: 20 }} />
           </button>
         </div>
 
@@ -127,7 +133,7 @@ export const EditUserModal = ({ isOpen, onClose, user, onUserUpdated }) => {
               Full Name <span className="form-required-star">*</span>
             </label>
             <div className="login-input-wrapper">
-              <User className="login-input-icon" />
+              <UserIcon className="login-input-icon" />
               <input
                 type="text"
                 value={name}
@@ -145,7 +151,7 @@ export const EditUserModal = ({ isOpen, onClose, user, onUserUpdated }) => {
               Email Address <span className="form-required-star">*</span>
             </label>
             <div className="login-input-wrapper">
-              <Mail className="login-input-icon" />
+              <EnvelopeIcon className="login-input-icon" />
               <input
                 type="email"
                 value={email}
@@ -177,8 +183,8 @@ export const EditUserModal = ({ isOpen, onClose, user, onUserUpdated }) => {
             <button
               type="button"
               onClick={onClose}
-              className="modal-close-icon-btn"
-              style={{ padding: '0.5rem 1rem', borderRadius: '0.5rem', border: '1px solid var(--slate-300)' }}
+              className="btn-secondary-action"
+              style={{ padding: '0.5rem 1rem', borderRadius: '4px' }}
             >
               Cancel
             </button>
@@ -189,7 +195,7 @@ export const EditUserModal = ({ isOpen, onClose, user, onUserUpdated }) => {
             >
               {loading ? (
                 <>
-                  <Loader2 className="animate-spin" style={{ width: 16, height: 16 }} />
+                  <ArrowPathIcon className="animate-spin" style={{ width: 16, height: 16 }} />
                   <span>Saving...</span>
                 </>
               ) : (

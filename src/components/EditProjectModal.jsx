@@ -5,7 +5,12 @@
 // ============================================================================
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { X, FolderEdit, Loader2, Trash2 } from 'lucide-react';
+import {
+  XMarkIcon,
+  PencilSquareIcon,
+  ArrowPathIcon,
+  TrashIcon,
+} from '@heroicons/react/24/outline';
 import { useProjects } from '../context/ProjectContext';
 import { DeleteProjectModal } from './DeleteProjectModal';
 
@@ -99,7 +104,7 @@ export const EditProjectModal = ({ isOpen, onClose, project, onProjectUpdated, o
           <div className="modal-header-bar">
             <div className="modal-header-title-wrap">
               <div className="modal-header-icon-box">
-                <FolderEdit style={{ width: 20, height: 20 }} />
+                <PencilSquareIcon style={{ width: 20, height: 20 }} />
               </div>
               <div>
                 <h3 className="modal-title-text">Edit Project</h3>
@@ -111,7 +116,7 @@ export const EditProjectModal = ({ isOpen, onClose, project, onProjectUpdated, o
               className="modal-close-icon-btn"
               title="Close"
             >
-              <X style={{ width: 20, height: 20 }} />
+              <XMarkIcon style={{ width: 20, height: 20 }} />
             </button>
           </div>
 
@@ -166,20 +171,18 @@ export const EditProjectModal = ({ isOpen, onClose, project, onProjectUpdated, o
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '0.375rem',
-                  color: 'var(--rose-600)',
+                  color: '#DC2626',
                   background: 'transparent',
                   padding: '0.5rem 0.75rem',
-                  borderRadius: '0.5rem',
+                  borderRadius: '4px',
                   fontSize: '0.8125rem',
                   fontWeight: 500,
                   cursor: 'pointer',
                   border: '1px solid transparent',
                   transition: 'background-color 0.15s ease',
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--rose-50)')}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
               >
-                <Trash2 style={{ width: 14, height: 14 }} />
+                <TrashIcon style={{ width: 14, height: 14 }} />
                 <span>Delete Project</span>
               </button>
 
@@ -187,8 +190,8 @@ export const EditProjectModal = ({ isOpen, onClose, project, onProjectUpdated, o
                 <button
                   type="button"
                   onClick={onClose}
-                  className="modal-close-icon-btn"
-                  style={{ padding: '0.5rem 1rem', borderRadius: '0.5rem', border: '1px solid var(--slate-300)' }}
+                  className="btn-secondary-action"
+                  style={{ padding: '0.5rem 1rem', borderRadius: '4px' }}
                 >
                   Cancel
                 </button>
@@ -199,7 +202,7 @@ export const EditProjectModal = ({ isOpen, onClose, project, onProjectUpdated, o
                 >
                   {loading ? (
                     <>
-                      <Loader2 className="animate-spin" style={{ width: 16, height: 16 }} />
+                      <ArrowPathIcon className="animate-spin" style={{ width: 16, height: 16 }} />
                       <span>Saving...</span>
                     </>
                   ) : (

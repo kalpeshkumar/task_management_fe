@@ -1,23 +1,31 @@
 import React from 'react';
 import { TaskCard } from './TaskCard';
-import { CircleDot, Clock, CheckCircle2, Inbox } from 'lucide-react';
+import {
+  ClockIcon,
+  ArrowPathIcon,
+  CheckCircleIcon,
+  ClipboardDocumentListIcon,
+} from '@heroicons/react/24/outline';
 
 export const TaskColumn = ({ title, tasks, onStatusChange, onDeleteTask, onEditTask, onViewDetails }) => {
   const columnConfigs = {
     Todo: {
       badgeClass: 'column-badge-todo',
-      icon: CircleDot,
-      iconColor: 'var(--amber-500)',
+      icon: ClockIcon,
+      iconColor: 'var(--amber-700)',
+      emptyDesc: 'No pending tasks scheduled for this phase',
     },
     'In Progress': {
       badgeClass: 'column-badge-progress',
-      icon: Clock,
-      iconColor: 'var(--sky-500)',
+      icon: ArrowPathIcon,
+      iconColor: 'var(--slate-700)',
+      emptyDesc: 'Active work currently under development',
     },
     Completed: {
       badgeClass: 'column-badge-completed',
-      icon: CheckCircle2,
-      iconColor: 'var(--teal-600)',
+      icon: CheckCircleIcon,
+      iconColor: 'var(--emerald-700)',
+      emptyDesc: 'Verified tasks completed and signed off',
     },
   };
 
@@ -29,11 +37,11 @@ export const TaskColumn = ({ title, tasks, onStatusChange, onDeleteTask, onEditT
       {/* Column Header */}
       <div className="column-header-card">
         <div className="column-title-left">
-          <Icon style={{ width: 16, height: 16, color: config.iconColor }} />
+          <Icon style={{ width: 16, height: 16, color: config.iconColor, strokeWidth: 2 }} />
           <h3 className="column-title-text">{title}</h3>
         </div>
         <span className={`column-count-tag ${config.badgeClass}`}>
-          {tasks.length}
+          {String(tasks.length).padStart(2, '0')}
         </span>
       </div>
 
@@ -41,8 +49,17 @@ export const TaskColumn = ({ title, tasks, onStatusChange, onDeleteTask, onEditT
       <div className="column-cards-scroll">
         {tasks.length === 0 ? (
           <div className="column-empty-placeholder">
-            <Inbox style={{ width: 32, height: 32, marginBottom: 6, opacity: 0.4 }} />
-            <p className="column-empty-text">No tasks in {title}</p>
+            <div
+              className="column-empty-icon-wrap"
+              style={{
+                backgroundColor: `${config.iconColor}15`,
+                color: config.iconColor,
+              }}
+            >
+              <ClipboardDocumentListIcon style={{ width: 22, height: 22, strokeWidth: 1.75 }} />
+            </div>
+            <p className="column-empty-title">[ No tasks in {title} ]</p>
+            <p className="column-empty-desc">{config.emptyDesc}</p>
           </div>
         ) : (
           tasks.map((task) => (

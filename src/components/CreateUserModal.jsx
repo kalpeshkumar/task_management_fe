@@ -5,7 +5,16 @@
 // ============================================================================
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { X, UserPlus, Loader2, Copy, Check, Shield, User, Mail, Sparkles } from 'lucide-react';
+import {
+  XMarkIcon,
+  UserPlusIcon,
+  ArrowPathIcon,
+  DocumentDuplicateIcon,
+  CheckIcon,
+  UserIcon,
+  EnvelopeIcon,
+  SparklesIcon,
+} from '@heroicons/react/24/outline';
 import { userApi } from '../api/userApi';
 
 export const CreateUserModal = ({ isOpen, onClose, onUserCreated }) => {
@@ -118,7 +127,7 @@ export const CreateUserModal = ({ isOpen, onClose, onUserCreated }) => {
         <div className="modal-header-bar">
           <div className="modal-header-title-wrap">
             <div className="modal-header-icon-box">
-              <UserPlus style={{ width: 20, height: 20 }} />
+              <UserPlusIcon style={{ width: 20, height: 20 }} />
             </div>
             <div>
               <h3 className="modal-title-text">
@@ -136,19 +145,19 @@ export const CreateUserModal = ({ isOpen, onClose, onUserCreated }) => {
             className="modal-close-icon-btn"
             title="Close"
           >
-            <X style={{ width: 20, height: 20 }} />
+            <XMarkIcon style={{ width: 20, height: 20 }} />
           </button>
         </div>
 
         {/* Content Body */}
         {createdResult ? (
           <div className="modal-form-content" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-            <div style={{ padding: '1rem', background: 'var(--teal-50)', border: '1px solid var(--teal-200)', borderRadius: '0.75rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--teal-800)', fontWeight: 600, marginBottom: '0.25rem' }}>
-                <Sparkles style={{ width: 16, height: 16, color: 'var(--teal-600)' }} />
+            <div style={{ padding: '1rem', background: '#FFEDD5', border: '1px solid #FED7AA', borderRadius: '4px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#9A3412', fontWeight: 600, marginBottom: '0.25rem' }}>
+                <SparklesIcon style={{ width: 16, height: 16, color: 'var(--brand-primary)' }} />
                 <span>Account Created: {createdResult.name}</span>
               </div>
-              <p style={{ fontSize: '0.8125rem', color: 'var(--teal-700)' }}>
+              <p style={{ fontSize: '0.8125rem', color: '#C2410C' }}>
                 Per security policy, the password is not set upfront. Send the activation link below to <strong>{createdResult.email}</strong> to complete first-login password setup.
               </p>
             </div>
@@ -161,7 +170,7 @@ export const CreateUserModal = ({ isOpen, onClose, onUserCreated }) => {
                   readOnly
                   value={getSetupLink()}
                   className="form-text-input"
-                  style={{ background: 'var(--slate-50)', fontSize: '0.8125rem', color: 'var(--slate-700)' }}
+                  style={{ background: '#F5F5F4', fontSize: '0.8125rem', color: 'var(--slate-700)', fontFamily: 'var(--font-mono)' }}
                 />
                 <button
                   type="button"
@@ -171,12 +180,12 @@ export const CreateUserModal = ({ isOpen, onClose, onUserCreated }) => {
                 >
                   {copied ? (
                     <>
-                      <Check style={{ width: 16, height: 16 }} />
+                      <CheckIcon style={{ width: 16, height: 16 }} />
                       <span>Copied!</span>
                     </>
                   ) : (
                     <>
-                      <Copy style={{ width: 16, height: 16 }} />
+                      <DocumentDuplicateIcon style={{ width: 16, height: 16 }} />
                       <span>Copy Link</span>
                     </>
                   )}
@@ -185,7 +194,7 @@ export const CreateUserModal = ({ isOpen, onClose, onUserCreated }) => {
             </div>
 
             {createdResult.setupToken && (
-              <div style={{ fontSize: '0.75rem', color: 'var(--slate-500)', wordBreak: 'break-all' }}>
+              <div style={{ fontSize: '0.75rem', color: 'var(--slate-500)', wordBreak: 'break-all', fontFamily: 'var(--font-mono)' }}>
                 <strong>Raw Setup Token:</strong> <code>{createdResult.setupToken}</code>
               </div>
             )}
@@ -210,7 +219,7 @@ export const CreateUserModal = ({ isOpen, onClose, onUserCreated }) => {
                 Full Name <span className="form-required-star">*</span>
               </label>
               <div className="login-input-wrapper">
-                <User className="login-input-icon" />
+                <UserIcon className="login-input-icon" />
                 <input
                   type="text"
                   value={name}
@@ -229,7 +238,7 @@ export const CreateUserModal = ({ isOpen, onClose, onUserCreated }) => {
                 Email Address <span className="form-required-star">*</span>
               </label>
               <div className="login-input-wrapper">
-                <Mail className="login-input-icon" />
+                <EnvelopeIcon className="login-input-icon" />
                 <input
                   type="email"
                   value={email}
@@ -258,7 +267,7 @@ export const CreateUserModal = ({ isOpen, onClose, onUserCreated }) => {
             </div>
 
             {/* Note about password */}
-            <div style={{ padding: '0.75rem', background: 'var(--slate-50)', border: '1px solid var(--slate-200)', borderRadius: '0.5rem', fontSize: '0.75rem', color: 'var(--slate-600)' }}>
+            <div style={{ padding: '0.75rem', background: '#F5F5F4', border: '1px solid var(--card-border)', borderRadius: '4px', fontSize: '0.75rem', color: 'var(--slate-600)' }}>
               Initial password is not required. A 48-hour activation setup link will be generated automatically.
             </div>
 
@@ -267,8 +276,8 @@ export const CreateUserModal = ({ isOpen, onClose, onUserCreated }) => {
               <button
                 type="button"
                 onClick={handleClose}
-                className="modal-close-icon-btn"
-                style={{ padding: '0.5rem 1rem', borderRadius: '0.5rem', border: '1px solid var(--slate-300)' }}
+                className="btn-secondary-action"
+                style={{ padding: '0.5rem 1rem', borderRadius: '4px' }}
               >
                 Cancel
               </button>
@@ -279,12 +288,12 @@ export const CreateUserModal = ({ isOpen, onClose, onUserCreated }) => {
               >
                 {loading ? (
                   <>
-                    <Loader2 className="animate-spin" style={{ width: 16, height: 16 }} />
+                    <ArrowPathIcon className="animate-spin" style={{ width: 16, height: 16 }} />
                     <span>Creating User...</span>
                   </>
                 ) : (
                   <>
-                    <UserPlus style={{ width: 16, height: 16 }} />
+                    <UserPlusIcon style={{ width: 16, height: 16 }} />
                     <span>Create User</span>
                   </>
                 )}

@@ -4,7 +4,13 @@
 // ============================================================================
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { X, KeyRound, Loader2, CheckCircle2, Lock } from 'lucide-react';
+import {
+  XMarkIcon,
+  KeyIcon,
+  ArrowPathIcon,
+  CheckCircleIcon,
+  LockClosedIcon,
+} from '@heroicons/react/24/outline';
 import { authApi } from '../api/authApi';
 
 export const ChangePasswordModal = ({ isOpen, onClose }) => {
@@ -109,7 +115,7 @@ export const ChangePasswordModal = ({ isOpen, onClose }) => {
         <div className="modal-header-bar">
           <div className="modal-header-title-wrap">
             <div className="modal-header-icon-box">
-              <KeyRound style={{ width: 20, height: 20 }} />
+              <KeyIcon style={{ width: 20, height: 20 }} />
             </div>
             <div>
               <h3 className="modal-title-text">Change Password</h3>
@@ -121,17 +127,17 @@ export const ChangePasswordModal = ({ isOpen, onClose }) => {
             className="modal-close-icon-btn"
             title="Close"
           >
-            <X style={{ width: 20, height: 20 }} />
+            <XMarkIcon style={{ width: 20, height: 20 }} />
           </button>
         </div>
 
         {/* Content Body */}
         {success ? (
           <div style={{ padding: '2rem', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-            <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'var(--teal-100)', color: 'var(--teal-700)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <CheckCircle2 style={{ width: 28, height: 28 }} />
+            <div style={{ width: 48, height: 48, borderRadius: '50%', background: '#DCFCE7', color: '#166534', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <CheckCircleIcon style={{ width: 28, height: 28 }} />
             </div>
-            <h4 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--slate-800)' }}>Password Changed!</h4>
+            <h4 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--slate-800)', fontFamily: 'var(--font-display)' }}>Password Changed!</h4>
             <p style={{ fontSize: '0.875rem', color: 'var(--slate-600)' }}>
               Your account password has been updated successfully.
             </p>
@@ -146,7 +152,7 @@ export const ChangePasswordModal = ({ isOpen, onClose }) => {
                 Current Password <span className="form-required-star">*</span>
               </label>
               <div className="login-input-wrapper">
-                <Lock className="login-input-icon" />
+                <LockClosedIcon className="login-input-icon" />
                 <input
                   type="password"
                   value={currentPassword}
@@ -165,7 +171,7 @@ export const ChangePasswordModal = ({ isOpen, onClose }) => {
                 New Password <span className="form-required-star">*</span>
               </label>
               <div className="login-input-wrapper">
-                <Lock className="login-input-icon" />
+                <LockClosedIcon className="login-input-icon" />
                 <input
                   type="password"
                   value={newPassword}
@@ -187,7 +193,7 @@ export const ChangePasswordModal = ({ isOpen, onClose }) => {
                 Confirm New Password <span className="form-required-star">*</span>
               </label>
               <div className="login-input-wrapper">
-                <Lock className="login-input-icon" />
+                <LockClosedIcon className="login-input-icon" />
                 <input
                   type="password"
                   value={confirmPassword}
@@ -205,8 +211,8 @@ export const ChangePasswordModal = ({ isOpen, onClose }) => {
               <button
                 type="button"
                 onClick={handleClose}
-                className="modal-close-icon-btn"
-                style={{ padding: '0.5rem 1rem', borderRadius: '0.5rem', border: '1px solid var(--slate-300)' }}
+                className="btn-secondary-action"
+                style={{ padding: '0.5rem 1rem', borderRadius: '4px' }}
               >
                 Cancel
               </button>
@@ -217,7 +223,7 @@ export const ChangePasswordModal = ({ isOpen, onClose }) => {
               >
                 {loading ? (
                   <>
-                    <Loader2 className="animate-spin" style={{ width: 16, height: 16 }} />
+                    <ArrowPathIcon className="animate-spin" style={{ width: 16, height: 16 }} />
                     <span>Updating...</span>
                   </>
                 ) : (

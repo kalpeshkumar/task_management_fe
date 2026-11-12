@@ -5,7 +5,13 @@
 // ============================================================================
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { X, Trash2, AlertTriangle, Loader2, Folder } from 'lucide-react';
+import {
+  XMarkIcon,
+  TrashIcon,
+  ExclamationTriangleIcon,
+  ArrowPathIcon,
+  FolderIcon,
+} from '@heroicons/react/24/outline';
 import { useProjects } from '../context/ProjectContext';
 
 export const DeleteProjectModal = ({ isOpen, onClose, project, onProjectDeleted }) => {
@@ -80,20 +86,20 @@ export const DeleteProjectModal = ({ isOpen, onClose, project, onProjectDeleted 
     >
       <div className="modal-dialog-box modal-dialog-md" style={{ maxWidth: 440 }}>
         {/* Header */}
-        <div className="modal-header-bar" style={{ borderBottomColor: 'var(--rose-100)' }}>
+        <div className="modal-header-bar" style={{ borderBottomColor: '#FEE2E2' }}>
           <div className="modal-header-title-wrap">
             <div
               className="modal-header-icon-box"
               style={{
-                backgroundColor: 'var(--rose-50)',
-                color: 'var(--rose-600)',
-                borderColor: 'var(--rose-200)',
+                backgroundColor: '#FEF2F2',
+                color: '#DC2626',
+                borderColor: '#FECACA',
               }}
             >
-              <AlertTriangle style={{ width: 20, height: 20 }} />
+              <ExclamationTriangleIcon style={{ width: 20, height: 20 }} />
             </div>
             <div>
-              <h3 className="modal-title-text" style={{ color: 'var(--rose-700)' }}>
+              <h3 className="modal-title-text" style={{ color: '#B91C1C' }}>
                 Delete Project
               </h3>
               <p className="modal-subtitle-text">This action cannot be undone</p>
@@ -104,7 +110,7 @@ export const DeleteProjectModal = ({ isOpen, onClose, project, onProjectDeleted 
             className="modal-close-icon-btn"
             title="Close"
           >
-            <X style={{ width: 20, height: 20 }} />
+            <XMarkIcon style={{ width: 20, height: 20 }} />
           </button>
         </div>
 
@@ -115,13 +121,13 @@ export const DeleteProjectModal = ({ isOpen, onClose, project, onProjectDeleted 
           <div
             style={{
               padding: '1rem',
-              backgroundColor: 'var(--slate-50)',
-              borderRadius: '0.625rem',
-              border: '1px solid var(--slate-200)',
+              backgroundColor: '#F5F5F4',
+              borderRadius: '4px',
+              border: '1px solid var(--card-border)',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.375rem' }}>
-              <Folder style={{ width: 16, height: 16, color: 'var(--teal-600)' }} />
+              <FolderIcon style={{ width: 16, height: 16, color: 'var(--brand-primary)' }} />
               <strong style={{ fontSize: '0.9375rem', color: 'var(--slate-900)' }}>
                 {project.name}
               </strong>
@@ -131,7 +137,7 @@ export const DeleteProjectModal = ({ isOpen, onClose, project, onProjectDeleted 
                 {project.description}
               </p>
             )}
-            <div style={{ fontSize: '0.75rem', color: 'var(--slate-500)', marginLeft: '1.5rem' }}>
+            <div style={{ fontSize: '0.75rem', color: 'var(--slate-500)', marginLeft: '1.5rem', fontFamily: 'var(--font-mono)' }}>
               Associated tasks: <strong>{taskCount}</strong>
             </div>
           </div>
@@ -139,7 +145,7 @@ export const DeleteProjectModal = ({ isOpen, onClose, project, onProjectDeleted 
           <p style={{ fontSize: '0.875rem', color: 'var(--slate-600)', lineHeight: 1.5 }}>
             Are you sure you want to permanently delete this project?
             {taskCount > 0 && (
-              <span style={{ display: 'block', marginTop: '0.5rem', color: 'var(--rose-600)', fontWeight: 500 }}>
+              <span style={{ display: 'block', marginTop: '0.5rem', color: '#DC2626', fontWeight: 500 }}>
                 Warning: All {taskCount} task{taskCount === 1 ? '' : 's'} assigned under this project will also be deleted immediately.
               </span>
             )}
@@ -161,11 +167,10 @@ export const DeleteProjectModal = ({ isOpen, onClose, project, onProjectDeleted 
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="modal-close-icon-btn"
+              className="btn-secondary-action"
               style={{
                 padding: '0.5rem 1.125rem',
-                borderRadius: '0.5rem',
-                border: '1px solid var(--slate-300)',
+                borderRadius: '4px',
                 fontWeight: 500,
                 fontSize: '0.875rem',
               }}
@@ -180,10 +185,10 @@ export const DeleteProjectModal = ({ isOpen, onClose, project, onProjectDeleted 
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.375rem',
-                backgroundColor: 'var(--rose-600)',
+                backgroundColor: '#DC2626',
                 color: '#ffffff',
                 padding: '0.5rem 1.125rem',
-                borderRadius: '0.5rem',
+                borderRadius: '4px',
                 fontWeight: 500,
                 fontSize: '0.875rem',
                 cursor: loading ? 'not-allowed' : 'pointer',
@@ -191,17 +196,15 @@ export const DeleteProjectModal = ({ isOpen, onClose, project, onProjectDeleted 
                 border: 'none',
                 transition: 'background-color 0.15s ease',
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--rose-700)')}
-              onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--rose-600)')}
             >
               {loading ? (
                 <>
-                  <Loader2 className="animate-spin" style={{ width: 14, height: 14 }} />
+                  <ArrowPathIcon className="animate-spin" style={{ width: 14, height: 14 }} />
                   <span>Deleting...</span>
                 </>
               ) : (
                 <>
-                  <Trash2 style={{ width: 14, height: 14 }} />
+                  <TrashIcon style={{ width: 14, height: 14 }} />
                   <span>Delete Project</span>
                 </>
               )}

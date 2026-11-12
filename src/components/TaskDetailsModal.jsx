@@ -4,7 +4,16 @@
 // ============================================================================
 
 import React, { useEffect, useCallback } from 'react';
-import { X, CheckSquare, Calendar, User, Folder, Clock, Edit3, Tag } from 'lucide-react';
+import {
+  XMarkIcon,
+  ClipboardDocumentCheckIcon,
+  CalendarDaysIcon,
+  UserIcon,
+  FolderIcon,
+  ClockIcon,
+  PencilSquareIcon,
+  TagIcon,
+} from '@heroicons/react/24/outline';
 
 export const TaskDetailsModal = ({ isOpen, onClose, task, onOpenEdit }) => {
   // Lock background scroll when modal is open
@@ -51,9 +60,9 @@ export const TaskDetailsModal = ({ isOpen, onClose, task, onOpenEdit }) => {
   };
 
   const statusColors = {
-    Todo: { bg: 'var(--amber-50)', color: 'var(--amber-700)', border: 'var(--amber-200)' },
-    'In Progress': { bg: 'var(--sky-50)', color: 'var(--sky-700)', border: 'var(--sky-200)' },
-    Completed: { bg: 'var(--teal-50)', color: 'var(--teal-700)', border: 'var(--teal-200)' },
+    Todo: { bg: '#FFEDD5', color: '#C2410C', border: '#FED7AA' },
+    'In Progress': { bg: '#F1F5F9', color: '#334155', border: '#CBD5E1' },
+    Completed: { bg: '#DCFCE7', color: '#166534', border: '#BBF7D0' },
   };
 
   const currentStatusStyle = statusColors[task.status] || statusColors.Todo;
@@ -70,7 +79,7 @@ export const TaskDetailsModal = ({ isOpen, onClose, task, onOpenEdit }) => {
         <div className="modal-header-bar">
           <div className="modal-header-title-wrap">
             <div className="modal-header-icon-box">
-              <CheckSquare style={{ width: 20, height: 20 }} />
+              <ClipboardDocumentCheckIcon style={{ width: 20, height: 20 }} />
             </div>
             <div>
               <h3 className="modal-title-text">Task Details</h3>
@@ -82,7 +91,7 @@ export const TaskDetailsModal = ({ isOpen, onClose, task, onOpenEdit }) => {
             className="modal-close-icon-btn"
             title="Close"
           >
-            <X style={{ width: 20, height: 20 }} />
+            <XMarkIcon style={{ width: 20, height: 20 }} />
           </button>
         </div>
 
@@ -96,34 +105,35 @@ export const TaskDetailsModal = ({ isOpen, onClose, task, onOpenEdit }) => {
                 alignItems: 'center',
                 gap: '0.375rem',
                 padding: '0.25rem 0.75rem',
-                borderRadius: '9999px',
+                borderRadius: '4px',
                 fontSize: '0.75rem',
                 fontWeight: 600,
                 backgroundColor: currentStatusStyle.bg,
                 color: currentStatusStyle.color,
                 border: `1px solid ${currentStatusStyle.border}`,
+                fontFamily: 'var(--font-mono)',
               }}
             >
-              <Tag style={{ width: 12, height: 12 }} />
-              {task.status}
+              <TagIcon style={{ width: 12, height: 12 }} />
+              [ {task.status} ]
             </span>
 
-            <span className="task-project-pill">
-              <Folder style={{ width: 12, height: 12, color: 'var(--slate-500)' }} />
+            <span className="task-project-pill" style={{ fontFamily: 'var(--font-mono)' }}>
+              <FolderIcon style={{ width: 12, height: 12, color: 'var(--slate-500)' }} />
               <span>{task.projectName || task.project_name || 'General Project'}</span>
             </span>
           </div>
 
           {/* Title */}
           <div>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--slate-900)', lineHeight: 1.4 }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--slate-900)', lineHeight: 1.4, fontFamily: 'var(--font-display)' }}>
               {task.title}
             </h2>
           </div>
 
           {/* Description */}
           {task.description ? (
-            <div style={{ padding: '0.875rem', background: 'var(--slate-50)', borderRadius: '0.5rem', border: '1px solid var(--slate-200)' }}>
+            <div style={{ padding: '0.875rem', background: '#F5F5F4', borderRadius: '4px', border: '1px solid var(--card-border)' }}>
               <p style={{ fontSize: '0.875rem', color: 'var(--slate-700)', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
                 {task.description}
               </p>
@@ -135,10 +145,10 @@ export const TaskDetailsModal = ({ isOpen, onClose, task, onOpenEdit }) => {
           )}
 
           {/* Metadata Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', borderTop: '1px solid var(--slate-200)', paddingTop: '1rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', borderTop: '1px solid var(--card-border)', paddingTop: '1rem' }}>
             {/* Assignee */}
             <div>
-              <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--slate-400)', textTransform: 'uppercase' }}>
+              <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--slate-400)', textTransform: 'uppercase', fontFamily: 'var(--font-mono)' }}>
                 Assigned Employee
               </span>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.25rem' }}>
@@ -160,18 +170,18 @@ export const TaskDetailsModal = ({ isOpen, onClose, task, onOpenEdit }) => {
 
             {/* Due Date */}
             <div>
-              <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--slate-400)', textTransform: 'uppercase' }}>
+              <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--slate-400)', textTransform: 'uppercase', fontFamily: 'var(--font-mono)' }}>
                 Due Date
               </span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', marginTop: '0.25rem', fontSize: '0.875rem', color: 'var(--slate-700)' }}>
-                <Calendar style={{ width: 14, height: 14, color: 'var(--slate-400)' }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', marginTop: '0.25rem', fontSize: '0.875rem', color: 'var(--slate-700)', fontFamily: 'var(--font-mono)' }}>
+                <CalendarDaysIcon style={{ width: 14, height: 14, color: 'var(--slate-400)' }} />
                 <span>{formatDate(task.dueDate || task.due_date)}</span>
               </div>
             </div>
 
             {/* Created By */}
             <div>
-              <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--slate-400)', textTransform: 'uppercase' }}>
+              <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--slate-400)', textTransform: 'uppercase', fontFamily: 'var(--font-mono)' }}>
                 Created By
               </span>
               <p style={{ fontSize: '0.875rem', color: 'var(--slate-700)', marginTop: '0.25rem' }}>
@@ -181,23 +191,23 @@ export const TaskDetailsModal = ({ isOpen, onClose, task, onOpenEdit }) => {
 
             {/* Created At */}
             <div>
-              <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--slate-400)', textTransform: 'uppercase' }}>
+              <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--slate-400)', textTransform: 'uppercase', fontFamily: 'var(--font-mono)' }}>
                 Created On
               </span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', marginTop: '0.25rem', fontSize: '0.875rem', color: 'var(--slate-700)' }}>
-                <Clock style={{ width: 14, height: 14, color: 'var(--slate-400)' }} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', marginTop: '0.25rem', fontSize: '0.875rem', color: 'var(--slate-700)', fontFamily: 'var(--font-mono)' }}>
+                <ClockIcon style={{ width: 14, height: 14, color: 'var(--slate-400)' }} />
                 <span>{formatDate(task.createdAt || task.created_at)}</span>
               </div>
             </div>
           </div>
 
           {/* Action Footer */}
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', borderTop: '1px solid var(--slate-200)', paddingTop: '1rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', borderTop: '1px solid var(--card-border)', paddingTop: '1rem' }}>
             <button
               type="button"
               onClick={onClose}
-              className="modal-close-icon-btn"
-              style={{ padding: '0.5rem 1rem', borderRadius: '0.5rem', border: '1px solid var(--slate-300)' }}
+              className="btn-secondary-action"
+              style={{ padding: '0.5rem 1rem', borderRadius: '4px' }}
             >
               Close
             </button>
@@ -210,7 +220,7 @@ export const TaskDetailsModal = ({ isOpen, onClose, task, onOpenEdit }) => {
                 }}
                 className="btn-primary-action"
               >
-                <Edit3 style={{ width: 14, height: 14 }} />
+                <PencilSquareIcon style={{ width: 14, height: 14 }} />
                 <span>Edit Task</span>
               </button>
             )}

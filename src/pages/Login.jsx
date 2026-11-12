@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle2, Lock, Mail, Loader2, ArrowRight } from 'lucide-react';
+import {
+  CheckCircleIcon,
+  LockClosedIcon,
+  EnvelopeIcon,
+  ArrowPathIcon,
+  ArrowRightIcon,
+  Square3Stack3DIcon,
+} from '@heroicons/react/24/outline';
 import { useAuth } from '../context/AuthContext';
 
 export const Login = () => {
@@ -39,7 +46,7 @@ export const Login = () => {
         {/* Brand Card Header */}
         <div className="login-brand-header">
           <div className="login-brand-logo">
-            <CheckCircle2 style={{ width: 32, height: 32 }} />
+            <Square3Stack3DIcon style={{ width: 32, height: 32 }} />
           </div>
           <h1 className="login-brand-title">
             Student Task Management
@@ -66,7 +73,7 @@ export const Login = () => {
                 Email Address
               </label>
               <div className="login-input-wrapper">
-                <Mail className="login-input-icon" />
+                <EnvelopeIcon className="login-input-icon" />
                 <input
                   type="email"
                   value={email}
@@ -83,7 +90,7 @@ export const Login = () => {
                 Password
               </label>
               <div className="login-input-wrapper">
-                <Lock className="login-input-icon" />
+                <LockClosedIcon className="login-input-icon" />
                 <input
                   type="password"
                   value={password}
@@ -102,13 +109,13 @@ export const Login = () => {
             >
               {loading ? (
                 <>
-                  <Loader2 className="animate-spin" style={{ width: 16, height: 16 }} />
+                  <ArrowPathIcon className="animate-spin" style={{ width: 16, height: 16 }} />
                   <span>Authenticating...</span>
                 </>
               ) : (
                 <>
                   <span>Sign In to TaskFlow</span>
-                  <ArrowRight style={{ width: 16, height: 16 }} />
+                  <ArrowRightIcon style={{ width: 16, height: 16 }} />
                 </>
               )}
             </button>

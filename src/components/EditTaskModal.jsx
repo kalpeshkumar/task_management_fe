@@ -4,7 +4,14 @@
 // ============================================================================
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { X, Edit3, Loader2, Calendar, User, Folder } from 'lucide-react';
+import {
+  XMarkIcon,
+  PencilSquareIcon,
+  ArrowPathIcon,
+  CalendarDaysIcon,
+  UserIcon,
+  FolderIcon,
+} from '@heroicons/react/24/outline';
 import { useProjects } from '../context/ProjectContext';
 import { userApi } from '../api/userApi';
 import { taskApi } from '../api/taskApi';
@@ -134,7 +141,7 @@ export const EditTaskModal = ({ isOpen, onClose, task, onTaskUpdated }) => {
         <div className="modal-header-bar">
           <div className="modal-header-title-wrap">
             <div className="modal-header-icon-box">
-              <Edit3 style={{ width: 20, height: 20 }} />
+              <PencilSquareIcon style={{ width: 20, height: 20 }} />
             </div>
             <div>
               <h3 className="modal-title-text">Edit Task</h3>
@@ -146,7 +153,7 @@ export const EditTaskModal = ({ isOpen, onClose, task, onTaskUpdated }) => {
             className="modal-close-icon-btn"
             title="Close"
           >
-            <X style={{ width: 20, height: 20 }} />
+            <XMarkIcon style={{ width: 20, height: 20 }} />
           </button>
         </div>
 
@@ -188,7 +195,7 @@ export const EditTaskModal = ({ isOpen, onClose, task, onTaskUpdated }) => {
             {/* Project Selection */}
             <div className="form-field-group">
               <label className="form-field-label">
-                <Folder style={{ width: 14, height: 14, display: 'inline', marginRight: 4 }} />
+                <FolderIcon style={{ width: 14, height: 14, display: 'inline', marginRight: 4 }} />
                 Project <span className="form-required-star">*</span>
               </label>
               <select
@@ -209,7 +216,7 @@ export const EditTaskModal = ({ isOpen, onClose, task, onTaskUpdated }) => {
             {/* Assignee Selection */}
             <div className="form-field-group">
               <label className="form-field-label">
-                <User style={{ width: 14, height: 14, display: 'inline', marginRight: 4 }} />
+                <UserIcon style={{ width: 14, height: 14, display: 'inline', marginRight: 4 }} />
                 Assignee
               </label>
               <select
@@ -247,7 +254,7 @@ export const EditTaskModal = ({ isOpen, onClose, task, onTaskUpdated }) => {
             {/* Due Date */}
             <div className="form-field-group">
               <label className="form-field-label">
-                <Calendar style={{ width: 14, height: 14, display: 'inline', marginRight: 4 }} />
+                <CalendarDaysIcon style={{ width: 14, height: 14, display: 'inline', marginRight: 4 }} />
                 Due Date
               </label>
               <input
@@ -264,8 +271,8 @@ export const EditTaskModal = ({ isOpen, onClose, task, onTaskUpdated }) => {
             <button
               type="button"
               onClick={onClose}
-              className="modal-close-icon-btn"
-              style={{ padding: '0.5rem 1rem', borderRadius: '0.5rem', border: '1px solid var(--slate-300)' }}
+              className="btn-secondary-action"
+              style={{ padding: '0.5rem 1rem', borderRadius: '4px' }}
             >
               Cancel
             </button>
@@ -276,7 +283,7 @@ export const EditTaskModal = ({ isOpen, onClose, task, onTaskUpdated }) => {
             >
               {submitting ? (
                 <>
-                  <Loader2 className="animate-spin" style={{ width: 16, height: 16 }} />
+                  <ArrowPathIcon className="animate-spin" style={{ width: 16, height: 16 }} />
                   <span>Saving...</span>
                 </>
               ) : (

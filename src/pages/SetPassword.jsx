@@ -5,7 +5,16 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { CheckCircle2, Lock, Mail, Loader2, ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
+import {
+  CheckCircleIcon,
+  LockClosedIcon,
+  EnvelopeIcon,
+  ArrowPathIcon,
+  ArrowRightIcon,
+  ShieldCheckIcon,
+  SparklesIcon,
+  Square3Stack3DIcon,
+} from '@heroicons/react/24/outline';
 import { authApi } from '../api/authApi';
 import { useAuth } from '../context/AuthContext';
 
@@ -86,7 +95,7 @@ export const SetPassword = () => {
         {/* Brand Card Header */}
         <div className="login-brand-header">
           <div className="login-brand-logo">
-            <CheckCircle2 style={{ width: 32, height: 32 }} />
+            <Square3Stack3DIcon style={{ width: 32, height: 32 }} />
           </div>
           <h1 className="login-brand-title">Student Task Management</h1>
           <p className="login-brand-desc">Activate your account to start managing tasks</p>
@@ -110,17 +119,17 @@ export const SetPassword = () => {
                   width: 52,
                   height: 52,
                   borderRadius: '50%',
-                  background: 'var(--teal-100)',
-                  color: 'var(--teal-700)',
+                  background: '#FFEDD5',
+                  color: 'var(--brand-primary)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   margin: '0 auto 1rem',
                 }}
               >
-                <Sparkles style={{ width: 28, height: 28 }} />
+                <SparklesIcon style={{ width: 28, height: 28 }} />
               </div>
-              <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--slate-800)', marginBottom: '0.5rem' }}>
+              <h3 style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--slate-800)', marginBottom: '0.5rem', fontFamily: 'var(--font-display)' }}>
                 Password Set Successfully!
               </h3>
               <p style={{ fontSize: '0.875rem', color: 'var(--slate-600)' }}>
@@ -132,7 +141,7 @@ export const SetPassword = () => {
               <div className="login-input-group">
                 <label className="form-field-label">Account Email</label>
                 <div className="login-input-wrapper">
-                  <Mail className="login-input-icon" />
+                  <EnvelopeIcon className="login-input-icon" />
                   <input
                     type="email"
                     value={email}
@@ -147,7 +156,7 @@ export const SetPassword = () => {
               <div className="login-input-group">
                 <label className="form-field-label">New Password</label>
                 <div className="login-input-wrapper">
-                  <Lock className="login-input-icon" />
+                  <LockClosedIcon className="login-input-icon" />
                   <input
                     type="password"
                     value={newPassword}
@@ -165,7 +174,7 @@ export const SetPassword = () => {
               <div className="login-input-group">
                 <label className="form-field-label">Confirm Password</label>
                 <div className="login-input-wrapper">
-                  <Lock className="login-input-icon" />
+                  <LockClosedIcon className="login-input-icon" />
                   <input
                     type="password"
                     value={confirmPassword}
@@ -184,13 +193,13 @@ export const SetPassword = () => {
               >
                 {loading ? (
                   <>
-                    <Loader2 className="animate-spin" style={{ width: 16, height: 16 }} />
+                    <ArrowPathIcon className="animate-spin" style={{ width: 16, height: 16 }} />
                     <span>Activating Account...</span>
                   </>
                 ) : (
                   <>
                     <span>Activate Account</span>
-                    <ArrowRight style={{ width: 16, height: 16 }} />
+                    <ArrowRightIcon style={{ width: 16, height: 16 }} />
                   </>
                 )}
               </button>
@@ -198,7 +207,7 @@ export const SetPassword = () => {
               <div style={{ textAlign: 'center', marginTop: '1rem' }}>
                 <Link
                   to="/login"
-                  style={{ fontSize: '0.8125rem', color: 'var(--teal-600)', fontWeight: 500 }}
+                  style={{ fontSize: '0.8125rem', color: 'var(--brand-primary)', fontWeight: 500 }}
                 >
                   Already have an active password? Sign In
                 </Link>

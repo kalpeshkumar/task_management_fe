@@ -9,20 +9,20 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
-  ListTodo,
-  CircleDot,
-  Clock,
-  CheckCircle2,
-  TrendingUp,
-  PieChart as PieChartIcon,
-  BarChart3,
-  Folder,
-  Check,
-  User,
-  Sparkles,
-  Inbox,
-  Layers,
-} from 'lucide-react';
+  RectangleStackIcon,
+  ClockIcon,
+  ArrowPathIcon,
+  CheckCircleIcon,
+  ArrowTrendingUpIcon,
+  ChartPieIcon,
+  ChartBarSquareIcon,
+  FolderIcon,
+  CheckIcon,
+  UserIcon,
+  SparklesIcon,
+  ClipboardDocumentCheckIcon,
+  Square3Stack3DIcon,
+} from '@heroicons/react/24/outline';
 import { taskApi } from '../api/taskApi';
 import { useAuth } from '../context/AuthContext';
 import { useProjects } from '../context/ProjectContext';
@@ -163,21 +163,21 @@ export const Dashboard = () => {
     <div className="dashboard-page-container">
       {/* 4 Task-wise Summary Cards at Top */}
       <div className="stats-grid">
-        {/* Total Tasks (Teal Accent) */}
+        {/* Total Tasks (Terracotta Accent) */}
         <div className="stat-card stat-card-total">
           <div className="stat-card-header">
             <span className="stat-label stat-label-total">
               Total Tasks
             </span>
             <div className="stat-icon-box stat-icon-total">
-              <ListTodo style={{ width: 20, height: 20 }} />
+              <RectangleStackIcon style={{ width: 20, height: 20 }} />
             </div>
           </div>
           <p className="stat-number">
             {loading ? '...' : total}
           </p>
           <div className="stat-meta">
-            <TrendingUp style={{ width: 14, height: 14, color: 'var(--teal-600)' }} />
+            <ArrowTrendingUpIcon style={{ width: 14, height: 14, color: 'var(--brand-primary)' }} />
             <span>{isAdmin ? 'All projects combined' : 'Assigned to your profile'}</span>
           </div>
         </div>
@@ -189,7 +189,7 @@ export const Dashboard = () => {
               Todo
             </span>
             <div className="stat-icon-box stat-icon-todo">
-              <CircleDot style={{ width: 20, height: 20 }} />
+              <ClockIcon style={{ width: 20, height: 20 }} />
             </div>
           </div>
           <p className="stat-number">
@@ -201,14 +201,14 @@ export const Dashboard = () => {
           </div>
         </div>
 
-        {/* In Progress Tasks (Blue / Sky Accent) */}
+        {/* In Progress Tasks (Slate Accent) */}
         <div className="stat-card stat-card-progress">
           <div className="stat-card-header">
             <span className="stat-label stat-label-progress">
               In Progress
             </span>
             <div className="stat-icon-box stat-icon-progress">
-              <Clock style={{ width: 20, height: 20 }} />
+              <ArrowPathIcon style={{ width: 20, height: 20 }} />
             </div>
           </div>
           <p className="stat-number">
@@ -220,14 +220,14 @@ export const Dashboard = () => {
           </div>
         </div>
 
-        {/* Completed Tasks (Teal Accent) */}
+        {/* Completed Tasks (Emerald Accent) */}
         <div className="stat-card stat-card-completed">
           <div className="stat-card-header">
             <span className="stat-label stat-label-completed">
               Completed
             </span>
             <div className="stat-icon-box stat-icon-completed">
-              <CheckCircle2 style={{ width: 20, height: 20 }} />
+              <CheckCircleIcon style={{ width: 20, height: 20 }} />
             </div>
           </div>
           <p className="stat-number">
@@ -251,7 +251,7 @@ export const Dashboard = () => {
                 <p className="panel-subtitle">Latest finished tasks across projects</p>
               </div>
               <div className="panel-header-icon">
-                <CheckCircle2 style={{ width: 16, height: 16 }} />
+                <CheckCircleIcon style={{ width: 16, height: 16 }} />
               </div>
             </div>
 
@@ -259,14 +259,14 @@ export const Dashboard = () => {
             {recentlyCompletedTasks.length === 0 ? (
               <div className="empty-state-box">
                 <div className="empty-state-icon-circle">
-                  <Sparkles style={{ width: 24, height: 24 }} />
+                  <SparklesIcon style={{ width: 24, height: 24 }} />
                 </div>
                 <h4 className="empty-state-heading">No completed tasks yet</h4>
                 <p className="empty-state-text">
                   Tasks marked as Completed will appear in this feed with project names and completion timestamps.
                 </p>
                 <div className="empty-state-tag">
-                  <Clock style={{ width: 12, height: 12, color: 'var(--slate-400)' }} />
+                  <ClockIcon style={{ width: 12, height: 12, color: 'var(--slate-400)' }} />
                   <span>Awaiting task activity</span>
                 </div>
               </div>
@@ -274,9 +274,9 @@ export const Dashboard = () => {
               <div className="recent-tasks-feed">
                 {recentlyCompletedTasks.map((task) => (
                   <div key={task.id} className="recent-task-item">
-                    {/* Visual cue: checkmark icon with teal accent */}
+                    {/* Visual cue: checkmark icon with terracotta accent */}
                     <div className="recent-task-check">
-                      <Check style={{ width: 14, height: 14 }} />
+                      <CheckIcon style={{ width: 14, height: 14 }} />
                     </div>
 
                     <div className="recent-task-body">
@@ -285,12 +285,12 @@ export const Dashboard = () => {
                       </p>
                       <div className="recent-task-meta-row">
                         <span className="recent-task-meta-span">
-                          <Folder style={{ width: 12, height: 12, color: 'var(--slate-400)', flexShrink: 0 }} />
+                          <FolderIcon style={{ width: 12, height: 12, color: 'var(--slate-400)', flexShrink: 0 }} />
                           <span className="recent-task-project">{task.project_name || 'General'}</span>
                         </span>
                         <span>•</span>
                         <span className="recent-task-meta-span">
-                          <User style={{ width: 12, height: 12, color: 'var(--slate-400)', flexShrink: 0 }} />
+                          <UserIcon style={{ width: 12, height: 12, color: 'var(--slate-400)', flexShrink: 0 }} />
                           <span>{task.assigned_to_name || 'Unassigned'}</span>
                         </span>
                       </div>
@@ -298,7 +298,7 @@ export const Dashboard = () => {
 
                     {/* How long ago it was completed */}
                     <div className="recent-task-timestamp">
-                      <Clock style={{ width: 12, height: 12 }} />
+                      <ClockIcon style={{ width: 12, height: 12 }} />
                       <span>{formatRelativeTime(task.created_at)}</span>
                     </div>
                   </div>
@@ -324,7 +324,7 @@ export const Dashboard = () => {
                 <p className="panel-subtitle">Distribution across workflow stages</p>
               </div>
               <div className="panel-header-icon">
-                <PieChartIcon style={{ width: 16, height: 16 }} />
+                <ChartPieIcon style={{ width: 16, height: 16 }} />
               </div>
             </div>
 
@@ -357,17 +357,17 @@ export const Dashboard = () => {
                       style={{
                         width: 36,
                         height: 36,
-                        borderRadius: '9999px',
+                        borderRadius: '4px',
                         backgroundColor: 'var(--slate-50)',
                         border: '1px solid var(--slate-200)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        color: 'var(--teal-600)',
+                        color: 'var(--brand-primary)',
                         marginBottom: 2,
                       }}
                     >
-                      <Inbox style={{ width: 16, height: 16 }} />
+                      <ClipboardDocumentCheckIcon style={{ width: 18, height: 18 }} />
                     </div>
                     <span className="donut-center-label">
                       0 Tasks
@@ -393,7 +393,7 @@ export const Dashboard = () => {
                       <span className="donut-empty-pill-val">0%</span>
                     </div>
                     <div className="donut-empty-pill donut-empty-pill-completed">
-                      <span className="donut-empty-pill-title" style={{ color: 'var(--teal-700)' }}>Done</span>
+                      <span className="donut-empty-pill-title" style={{ color: 'var(--emerald-700)' }}>Done</span>
                       <span className="donut-empty-pill-val">0%</span>
                     </div>
                   </div>
@@ -447,14 +447,14 @@ export const Dashboard = () => {
                       />
                     )}
 
-                    {/* Completed Segment (Teal) */}
+                    {/* Completed Segment (Emerald) */}
                     {completed > 0 && (
                       <circle
                         cx="70"
                         cy="70"
                         r={radius}
                         fill="none"
-                        stroke="#0d9488"
+                        stroke="#10b981"
                         strokeWidth="16"
                         strokeDasharray={`${completedStroke} ${circumference}`}
                         strokeDashoffset={completedOffset}
@@ -505,10 +505,10 @@ export const Dashboard = () => {
                     </div>
                   </div>
 
-                  {/* Completed Legend Item (Teal) */}
+                  {/* Completed Legend Item (Emerald) */}
                   <div className="legend-row legend-row-completed">
                     <div className="legend-left">
-                      <span className="legend-dot-circle" style={{ backgroundColor: 'var(--teal-600)' }}></span>
+                      <span className="legend-dot-circle" style={{ backgroundColor: 'var(--emerald-500)' }}></span>
                       <span className="legend-label-text">Completed</span>
                     </div>
                     <div className="legend-right">
@@ -539,7 +539,7 @@ export const Dashboard = () => {
           <div>
             <div className="project-dist-title-group">
               <div className="panel-header-icon">
-                <BarChart3 style={{ width: 16, height: 16 }} />
+                <ChartBarSquareIcon style={{ width: 16, height: 16 }} />
               </div>
               <h3 className="panel-title">Project-wise Task Distribution</h3>
             </div>
@@ -551,15 +551,15 @@ export const Dashboard = () => {
           {/* Status Color Legend */}
           <div className="project-dist-legend">
             <div className="legend-chip">
-              <span className="legend-dot-circle" style={{ backgroundColor: 'var(--amber-500)' }}></span>
+              <span className="legend-dot-circle" style={{ backgroundColor: 'var(--amber-600)' }}></span>
               <span className="legend-chip-label">Todo</span>
             </div>
             <div className="legend-chip">
-              <span className="legend-dot-circle" style={{ backgroundColor: 'var(--sky-500)' }}></span>
+              <span className="legend-dot-circle" style={{ backgroundColor: 'var(--slate-700)' }}></span>
               <span className="legend-chip-label">In Progress</span>
             </div>
             <div className="legend-chip">
-              <span className="legend-dot-circle" style={{ backgroundColor: 'var(--teal-600)' }}></span>
+              <span className="legend-dot-circle" style={{ backgroundColor: 'var(--emerald-600)' }}></span>
               <span className="legend-chip-label">Completed</span>
             </div>
           </div>
@@ -573,7 +573,7 @@ export const Dashboard = () => {
         ) : projectTaskDistribution.length === 0 ? (
           <div className="empty-state-box" style={{ padding: '3rem 1rem' }}>
             <div className="empty-state-icon-circle">
-              <Layers style={{ width: 24, height: 24 }} />
+              <Square3Stack3DIcon style={{ width: 24, height: 24 }} />
             </div>
             <h4 className="empty-state-heading">No Projects Found</h4>
             <p className="empty-state-text">
@@ -596,7 +596,7 @@ export const Dashboard = () => {
                   {/* Project Info Header: Name & Total Count */}
                   <div className="project-bar-meta">
                     <div className="project-bar-name-wrap">
-                      <Folder style={{ width: 14, height: 14, color: 'var(--teal-600)', flexShrink: 0 }} />
+                      <FolderIcon style={{ width: 14, height: 14, color: 'var(--brand-primary)', flexShrink: 0 }} />
                       <span>{proj.name}</span>
                     </div>
 

@@ -5,7 +5,15 @@
 // ============================================================================
 
 import React, { useState } from 'react';
-import { Calendar, Folder, Trash2, Loader2, Lock, Edit3, Eye } from 'lucide-react';
+import {
+  CalendarDaysIcon,
+  FolderIcon,
+  TrashIcon,
+  ArrowPathIcon,
+  LockClosedIcon,
+  PencilSquareIcon,
+  EyeIcon,
+} from '@heroicons/react/24/outline';
 import { useAuth } from '../context/AuthContext';
 
 export const TaskCard = ({ task, onStatusChange, onDeleteTask, onEditTask, onViewDetails }) => {
@@ -89,7 +97,7 @@ export const TaskCard = ({ task, onStatusChange, onDeleteTask, onEditTask, onVie
       {/* Top Tag & Actions */}
       <div className="task-card-top-row">
         <span className="task-project-pill">
-          <Folder style={{ width: 12, height: 12, color: 'var(--slate-500)', flexShrink: 0 }} />
+          <FolderIcon style={{ width: 13, height: 13, color: 'var(--slate-500)', flexShrink: 0 }} />
           <span>{task.project_name || 'General'}</span>
         </span>
 
@@ -101,7 +109,7 @@ export const TaskCard = ({ task, onStatusChange, onDeleteTask, onEditTask, onVie
               className="task-delete-btn"
               style={{ color: 'var(--slate-500)' }}
             >
-              <Eye style={{ width: 14, height: 14 }} />
+              <EyeIcon style={{ width: 14, height: 14 }} />
             </button>
           )}
 
@@ -112,7 +120,7 @@ export const TaskCard = ({ task, onStatusChange, onDeleteTask, onEditTask, onVie
               className="task-delete-btn"
               style={{ color: 'var(--slate-500)' }}
             >
-              <Edit3 style={{ width: 14, height: 14 }} />
+              <PencilSquareIcon style={{ width: 14, height: 14 }} />
             </button>
           )}
 
@@ -124,9 +132,9 @@ export const TaskCard = ({ task, onStatusChange, onDeleteTask, onEditTask, onVie
               className="task-delete-btn"
             >
               {deleting ? (
-                <Loader2 className="animate-spin" style={{ width: 14, height: 14 }} />
+                <ArrowPathIcon className="animate-spin" style={{ width: 14, height: 14 }} />
               ) : (
-                <Trash2 style={{ width: 14, height: 14 }} />
+                <TrashIcon style={{ width: 14, height: 14 }} />
               )}
             </button>
           )}
@@ -169,7 +177,7 @@ export const TaskCard = ({ task, onStatusChange, onDeleteTask, onEditTask, onVie
 
         {/* Due date */}
         <div className={`task-duedate-row ${isOverdue ? 'is-overdue' : ''}`}>
-          <Calendar style={{ width: 14, height: 14, flexShrink: 0 }} />
+          <CalendarDaysIcon style={{ width: 14, height: 14, flexShrink: 0 }} />
           <span>{formatDate(task.due_date)}</span>
           {isOverdue && (
             <span className="overdue-pill">
@@ -187,7 +195,7 @@ export const TaskCard = ({ task, onStatusChange, onDeleteTask, onEditTask, onVie
           </label>
           {!canChangeStatus && (
             <span className="task-readonly-indicator">
-              <Lock style={{ width: 10, height: 10 }} /> Read-only
+              <LockClosedIcon style={{ width: 11, height: 11 }} /> Read-only
             </span>
           )}
         </div>
@@ -206,7 +214,7 @@ export const TaskCard = ({ task, onStatusChange, onDeleteTask, onEditTask, onVie
           </select>
 
           {updating ? (
-            <Loader2 className="task-select-spinner animate-spin" style={{ width: 14, height: 14 }} />
+            <ArrowPathIcon className="task-select-spinner animate-spin" style={{ width: 14, height: 14 }} />
           ) : (
             <span
               className="task-select-dot-icon"

@@ -7,21 +7,20 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  UserPlus,
-  Search,
-  User,
-  Shield,
-  UserCheck,
-  CheckCircle2,
-  Clock,
-  Edit3,
-  Trash2,
-  AlertCircle,
-  ChevronLeft,
-  ChevronRight,
-  RefreshCw,
-  Sparkles,
-} from 'lucide-react';
+  UserPlusIcon,
+  MagnifyingGlassIcon,
+  UserIcon,
+  ShieldCheckIcon,
+  CheckBadgeIcon,
+  CheckCircleIcon,
+  ClockIcon,
+  PencilSquareIcon,
+  TrashIcon,
+  ExclamationCircleIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  ArrowPathIcon,
+} from '@heroicons/react/24/outline';
 import { useAuth } from '../context/AuthContext';
 import { userApi } from '../api/userApi';
 import { CreateUserModal } from '../components/CreateUserModal';
@@ -146,7 +145,7 @@ export const Users = () => {
         <div className="tasks-controls-row">
           {/* Search box */}
           <div className="search-box-wrapper">
-            <Search className="search-box-icon" />
+            <MagnifyingGlassIcon className="search-box-icon" />
             <input
               type="text"
               placeholder="Search by name or email..."
@@ -179,7 +178,7 @@ export const Users = () => {
             title="Refresh users"
             className="icon-action-btn"
           >
-            <RefreshCw style={{ width: 14, height: 14 }} className={loading ? 'animate-spin' : ''} />
+            <ArrowPathIcon style={{ width: 14, height: 14 }} className={loading ? 'animate-spin' : ''} />
           </button>
 
           {/* Add User Button */}
@@ -187,7 +186,7 @@ export const Users = () => {
             onClick={() => setShowCreateModal(true)}
             className="btn-primary-action"
           >
-            <UserPlus style={{ width: 16, height: 16 }} />
+            <UserPlusIcon style={{ width: 16, height: 16 }} />
             <span>Add User</span>
           </button>
         </div>
@@ -201,9 +200,9 @@ export const Users = () => {
           }`}
         >
           {feedback.type === 'error' ? (
-            <AlertCircle style={{ width: 16, height: 16, flexShrink: 0 }} />
+            <ExclamationCircleIcon style={{ width: 16, height: 16, flexShrink: 0 }} />
           ) : (
-            <CheckCircle2 style={{ width: 16, height: 16, flexShrink: 0 }} />
+            <CheckCircleIcon style={{ width: 16, height: 16, flexShrink: 0 }} />
           )}
           <span>{feedback.message}</span>
         </div>
@@ -214,7 +213,7 @@ export const Users = () => {
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
             <thead>
-              <tr style={{ background: 'var(--slate-50)', borderBottom: '1px solid var(--slate-200)', color: 'var(--slate-600)' }}>
+              <tr style={{ background: '#F5F5F4', borderBottom: '1px solid var(--card-border)', color: 'var(--slate-600)' }}>
                 <th style={{ padding: '0.875rem 1.25rem', fontWeight: 600 }}>User</th>
                 <th style={{ padding: '0.875rem 1.25rem', fontWeight: 600 }}>Role</th>
                 <th style={{ padding: '0.875rem 1.25rem', fontWeight: 600 }}>Password Status</th>
@@ -234,7 +233,7 @@ export const Users = () => {
                 <tr>
                   <td colSpan={6} style={{ padding: '3rem', textAlign: 'center' }}>
                     <div className="empty-state-icon-circle" style={{ margin: '0 auto 1rem' }}>
-                      <User style={{ width: 24, height: 24 }} />
+                      <UserIcon style={{ width: 24, height: 24 }} />
                     </div>
                     <p style={{ fontWeight: 600, color: 'var(--slate-800)', marginBottom: '0.25rem' }}>No users found</p>
                     <p style={{ fontSize: '0.8125rem', color: 'var(--slate-500)' }}>
@@ -251,10 +250,10 @@ export const Users = () => {
                     <tr
                       key={u.id}
                       style={{
-                        borderBottom: '1px solid var(--slate-100)',
+                        borderBottom: '1px solid #E7E5E4',
                         transition: 'background-color 0.15s ease',
                       }}
-                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--slate-50)')}
+                      onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#FBF9F5')}
                       onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
                     >
                       {/* User Info */}
@@ -265,7 +264,7 @@ export const Users = () => {
                           </div>
                           <div>
                             <p style={{ fontWeight: 600, color: 'var(--slate-900)' }}>
-                              {u.name} {isSelf && <span style={{ fontSize: '0.75rem', color: 'var(--teal-600)', fontWeight: 500 }}>(You)</span>}
+                              {u.name} {isSelf && <span style={{ fontSize: '0.75rem', color: 'var(--brand-primary)', fontWeight: 500 }}>(You)</span>}
                             </p>
                             <p style={{ fontSize: '0.75rem', color: 'var(--slate-500)' }}>{u.email}</p>
                           </div>
@@ -275,12 +274,12 @@ export const Users = () => {
                       {/* Role Badge */}
                       <td style={{ padding: '0.875rem 1.25rem' }}>
                         {isAdminRole ? (
-                          <span className="user-role-tag user-role-admin" style={{ display: 'inline-flex' }}>
-                            <Shield style={{ width: 10, height: 10 }} /> Admin
+                          <span className="user-role-tag user-role-admin" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                            <ShieldCheckIcon style={{ width: 12, height: 12 }} /> Admin
                           </span>
                         ) : (
-                          <span className="user-role-tag user-role-employee" style={{ display: 'inline-flex' }}>
-                            <UserCheck style={{ width: 10, height: 10 }} /> Employee
+                          <span className="user-role-tag user-role-employee" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                            <CheckBadgeIcon style={{ width: 12, height: 12 }} /> Employee
                           </span>
                         )}
                       </td>
@@ -288,28 +287,28 @@ export const Users = () => {
                       {/* Password Status */}
                       <td style={{ padding: '0.875rem 1.25rem' }}>
                         {u.isPasswordSet ? (
-                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem', color: 'var(--teal-700)', fontWeight: 500, background: 'var(--teal-50)', padding: '0.2rem 0.5rem', borderRadius: '0.375rem', border: '1px solid var(--teal-200)' }}>
-                            <CheckCircle2 style={{ width: 12, height: 12 }} />
-                            <span>Password Active</span>
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem', color: '#166534', fontWeight: 500, background: '#DCFCE7', padding: '0.2rem 0.5rem', borderRadius: '4px', border: '1px solid #BBF7D0', fontFamily: 'var(--font-mono)' }}>
+                            <CheckCircleIcon style={{ width: 12, height: 12 }} />
+                            <span>Active</span>
                           </span>
                         ) : (
-                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem', color: 'var(--amber-700)', fontWeight: 500, background: 'var(--amber-50)', padding: '0.2rem 0.5rem', borderRadius: '0.375rem', border: '1px solid var(--amber-200)' }}>
-                            <Clock style={{ width: 12, height: 12 }} />
-                            <span>Setup Pending</span>
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.75rem', color: '#C2410C', fontWeight: 500, background: '#FFEDD5', padding: '0.2rem 0.5rem', borderRadius: '4px', border: '1px solid #FED7AA', fontFamily: 'var(--font-mono)' }}>
+                            <ClockIcon style={{ width: 12, height: 12 }} />
+                            <span>Pending Setup</span>
                           </span>
                         )}
                       </td>
 
                       {/* Account Status */}
                       <td style={{ padding: '0.875rem 1.25rem' }}>
-                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.8125rem', color: u.isActive !== false ? 'var(--emerald-700)' : 'var(--rose-700)' }}>
-                          <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: u.isActive !== false ? 'var(--emerald-500, #10b981)' : 'var(--rose-500)' }}></span>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.8125rem', color: u.isActive !== false ? '#166534' : '#991B1B' }}>
+                          <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: u.isActive !== false ? '#16A34A' : '#DC2626' }}></span>
                           <span>{u.isActive !== false ? 'Active' : 'Inactive'}</span>
                         </span>
                       </td>
 
                       {/* Created Date */}
-                      <td style={{ padding: '0.875rem 1.25rem', color: 'var(--slate-500)', fontSize: '0.8125rem' }}>
+                      <td style={{ padding: '0.875rem 1.25rem', color: 'var(--slate-500)', fontSize: '0.8125rem', fontFamily: 'var(--font-mono)' }}>
                         {formatDate(u.createdAt)}
                       </td>
 
@@ -322,7 +321,7 @@ export const Users = () => {
                             className="task-delete-btn"
                             style={{ color: 'var(--slate-500)' }}
                           >
-                            <Edit3 style={{ width: 14, height: 14 }} />
+                            <PencilSquareIcon style={{ width: 14, height: 14 }} />
                           </button>
                           {!isSelf && (
                             <button
@@ -331,7 +330,7 @@ export const Users = () => {
                               title="Delete user"
                               className="task-delete-btn"
                             >
-                              <Trash2 style={{ width: 14, height: 14 }} />
+                              <TrashIcon style={{ width: 14, height: 14 }} />
                             </button>
                           )}
                         </div>
@@ -346,8 +345,8 @@ export const Users = () => {
 
         {/* Pagination Footer */}
         {pagination.totalPages > 1 && (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.875rem 1.25rem', borderTop: '1px solid var(--slate-200)', background: 'var(--slate-50)' }}>
-            <span style={{ fontSize: '0.8125rem', color: 'var(--slate-600)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.875rem 1.25rem', borderTop: '1px solid #E7E5E4', background: '#F5F5F4' }}>
+            <span style={{ fontSize: '0.8125rem', color: 'var(--slate-600)', fontFamily: 'var(--font-mono)' }}>
               Page <strong>{page}</strong> of <strong>{pagination.totalPages}</strong> ({pagination.totalRecords} total users)
             </span>
 
@@ -359,7 +358,7 @@ export const Users = () => {
                 style={{ width: 32, height: 32, opacity: page <= 1 ? 0.4 : 1 }}
                 title="Previous page"
               >
-                <ChevronLeft style={{ width: 16, height: 16 }} />
+                <ChevronLeftIcon style={{ width: 16, height: 16 }} />
               </button>
               <button
                 onClick={() => setPage((p) => Math.min(pagination.totalPages, p + 1))}
@@ -368,7 +367,7 @@ export const Users = () => {
                 style={{ width: 32, height: 32, opacity: page >= pagination.totalPages ? 0.4 : 1 }}
                 title="Next page"
               >
-                <ChevronRight style={{ width: 16, height: 16 }} />
+                <ChevronRightIcon style={{ width: 16, height: 16 }} />
               </button>
             </div>
           </div>

@@ -7,7 +7,14 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { X, CheckSquare, Loader2, Calendar, User, Folder } from 'lucide-react';
+import {
+  XMarkIcon,
+  ClipboardDocumentCheckIcon,
+  ArrowPathIcon,
+  CalendarDaysIcon,
+  UserIcon,
+  FolderIcon,
+} from '@heroicons/react/24/outline';
 import { useProjects } from '../context/ProjectContext';
 import { userApi } from '../api/userApi';
 import { taskApi } from '../api/taskApi';
@@ -132,7 +139,7 @@ export const CreateTaskModal = ({ isOpen, onClose, onTaskCreated }) => {
         <div className="modal-header-bar">
           <div className="modal-header-title-wrap">
             <div className="modal-header-icon-box">
-              <CheckSquare style={{ width: 20, height: 20 }} />
+              <ClipboardDocumentCheckIcon style={{ width: 20, height: 20 }} />
             </div>
             <div>
               <h3 className="modal-title-text">Create New Task</h3>
@@ -144,7 +151,7 @@ export const CreateTaskModal = ({ isOpen, onClose, onTaskCreated }) => {
             className="modal-close-icon-btn"
             title="Close"
           >
-            <X style={{ width: 20, height: 20 }} />
+            <XMarkIcon style={{ width: 20, height: 20 }} />
           </button>
         </div>
 
@@ -175,7 +182,7 @@ export const CreateTaskModal = ({ isOpen, onClose, onTaskCreated }) => {
           <div className="form-two-cols">
             <div className="form-field-group">
               <label className="form-field-label">
-                <Folder style={{ width: 14, height: 14, color: 'var(--slate-400)' }} /> Project <span className="form-required-star">*</span>
+                <FolderIcon style={{ width: 14, height: 14, color: 'var(--slate-400)' }} /> Project <span className="form-required-star">*</span>
               </label>
               <select
                 value={formData.project_id}
@@ -194,7 +201,7 @@ export const CreateTaskModal = ({ isOpen, onClose, onTaskCreated }) => {
 
             <div className="form-field-group">
               <label className="form-field-label">
-                <User style={{ width: 14, height: 14, color: 'var(--slate-400)' }} /> Assign To <span className="form-required-star">*</span>
+                <UserIcon style={{ width: 14, height: 14, color: 'var(--slate-400)' }} /> Assign To <span className="form-required-star">*</span>
               </label>
               <select
                 value={formData.assigned_to}
@@ -234,7 +241,7 @@ export const CreateTaskModal = ({ isOpen, onClose, onTaskCreated }) => {
 
             <div className="form-field-group">
               <label className="form-field-label">
-                <Calendar style={{ width: 14, height: 14, color: 'var(--slate-400)' }} /> Due Date
+                <CalendarDaysIcon style={{ width: 14, height: 14, color: 'var(--slate-400)' }} /> Due Date
               </label>
               <input
                 type="date"
@@ -272,7 +279,7 @@ export const CreateTaskModal = ({ isOpen, onClose, onTaskCreated }) => {
               disabled={submitting}
               className="btn-modal-submit"
             >
-              {submitting && <Loader2 className="animate-spin" style={{ width: 16, height: 16 }} />}
+              {submitting && <ArrowPathIcon className="animate-spin" style={{ width: 16, height: 16 }} />}
               <span>Create & Assign Task</span>
             </button>
           </div>

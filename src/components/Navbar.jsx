@@ -6,7 +6,13 @@
 // ============================================================================
 
 import React from 'react';
-import { Menu, Folder, X, Calendar, Layers } from 'lucide-react';
+import {
+  Bars3Icon,
+  FolderIcon,
+  XMarkIcon,
+  CalendarDaysIcon,
+  Square3Stack3DIcon,
+} from '@heroicons/react/24/outline';
 import { useAuth } from '../context/AuthContext';
 import { useProjects } from '../context/ProjectContext';
 
@@ -30,7 +36,7 @@ export const Navbar = ({ onOpenSidebar }) => {
           className="navbar-menu-btn"
           title="Toggle Navigation Menu"
         >
-          <Menu style={{ width: 20, height: 20 }} />
+          <Bars3Icon style={{ width: 20, height: 20 }} />
         </button>
 
         {/* Project context tag */}
@@ -40,19 +46,19 @@ export const Navbar = ({ onOpenSidebar }) => {
           </span>
           {selectedProjectId ? (
             <div className="scope-badge-project">
-              <Folder style={{ width: 14, height: 14, color: 'var(--teal-600)' }} />
+              <FolderIcon style={{ width: 14, height: 14, color: 'var(--brand-primary)' }} />
               <span className="scope-text">{selectedProject?.name || 'Selected Project'}</span>
               <button
                 onClick={() => setSelectedProjectId(null)}
                 title="Clear project filter"
                 className="scope-clear-btn"
               >
-                <X style={{ width: 12, height: 12 }} />
+                <XMarkIcon style={{ width: 12, height: 12 }} />
               </button>
             </div>
           ) : (
             <span className="scope-badge-all">
-              <Layers style={{ width: 14, height: 14, color: 'var(--slate-500)' }} />
+              <Square3Stack3DIcon style={{ width: 14, height: 14, color: 'var(--slate-500)' }} />
               <span>All Projects</span>
             </span>
           )}
@@ -63,18 +69,9 @@ export const Navbar = ({ onOpenSidebar }) => {
       <div className="navbar-right">
         {/* Date badge */}
         <div className="date-badge">
-          <Calendar style={{ width: 14, height: 14, color: 'var(--slate-500)' }} />
+          <CalendarDaysIcon style={{ width: 14, height: 14, color: 'var(--slate-500)' }} />
           <span>{todayFormatted}</span>
         </div>
-
-        {/* Live system status indicator in Teal */}
-        {/* <div className="live-status-badge">
-          <span className="ping-container">
-            <span className="ping-pulse"></span>
-            <span className="ping-dot"></span>
-          </span>
-          <span className="status-label">Workspace Active</span>
-        </div> */}
 
         {/* Mobile-only avatar button to toggle sidebar on small screens */}
         <button

@@ -7,7 +7,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { X, FolderPlus, Loader2 } from 'lucide-react';
+import { XMarkIcon, FolderPlusIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { useProjects } from '../context/ProjectContext';
 
 export const CreateProjectModal = ({ isOpen, onClose }) => {
@@ -85,7 +85,7 @@ export const CreateProjectModal = ({ isOpen, onClose }) => {
         <div className="modal-header-bar">
           <div className="modal-header-title-wrap">
             <div className="modal-header-icon-box">
-              <FolderPlus style={{ width: 20, height: 20 }} />
+              <FolderPlusIcon style={{ width: 20, height: 20 }} />
             </div>
             <div>
               <h3 className="modal-title-text">Create New Project</h3>
@@ -97,7 +97,7 @@ export const CreateProjectModal = ({ isOpen, onClose }) => {
             className="modal-close-icon-btn"
             title="Close"
           >
-            <X style={{ width: 20, height: 20 }} />
+            <XMarkIcon style={{ width: 20, height: 20 }} />
           </button>
         </div>
 
@@ -149,7 +149,7 @@ export const CreateProjectModal = ({ isOpen, onClose }) => {
               disabled={loading}
               className="btn-modal-submit"
             >
-              {loading && <Loader2 className="animate-spin" style={{ width: 16, height: 16 }} />}
+              {loading && <ArrowPathIcon className="animate-spin" style={{ width: 16, height: 16 }} />}
               <span>Create Project</span>
             </button>
           </div>

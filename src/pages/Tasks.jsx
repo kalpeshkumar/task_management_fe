@@ -6,15 +6,15 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
-  Plus,
-  RefreshCw,
-  Search,
-  Folder,
-  AlertCircle,
-  CheckCircle2,
-  Edit3,
-  Trash2,
-} from 'lucide-react';
+  PlusIcon,
+  ArrowPathIcon,
+  MagnifyingGlassIcon,
+  FolderIcon,
+  ExclamationCircleIcon,
+  CheckCircleIcon,
+  PencilSquareIcon,
+  TrashIcon,
+} from '@heroicons/react/24/outline';
 import { taskApi } from '../api/taskApi';
 import { useAuth } from '../context/AuthContext';
 import { useProjects } from '../context/ProjectContext';
@@ -165,7 +165,7 @@ export const Tasks = () => {
             {selectedProjectId ? (
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.625rem', flexWrap: 'wrap', fontWeight: 500, color: 'var(--teal-700)' }}>
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem' }}>
-                  <Folder style={{ width: 14, height: 14, color: 'var(--teal-600)' }} /> Filtered by project: <strong>{selectedProject?.name}</strong>
+                  <FolderIcon style={{ width: 14, height: 14, color: 'var(--brand-primary)' }} /> Filtered by project: <strong>{selectedProject?.name}</strong>
                 </span>
                 {isAdmin && selectedProject && (
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.375rem', marginLeft: '0.25rem' }}>
@@ -186,7 +186,7 @@ export const Tasks = () => {
                         fontWeight: 500,
                       }}
                     >
-                      <Edit3 style={{ width: 11, height: 11 }} />
+                      <PencilSquareIcon style={{ width: 13, height: 13 }} />
                       <span>Edit</span>
                     </button>
                     <button
@@ -206,7 +206,7 @@ export const Tasks = () => {
                         fontWeight: 500,
                       }}
                     >
-                      <Trash2 style={{ width: 11, height: 11 }} />
+                      <TrashIcon style={{ width: 13, height: 13 }} />
                       <span>Delete</span>
                     </button>
                   </span>
@@ -226,7 +226,7 @@ export const Tasks = () => {
         <div className="tasks-controls-row">
           {/* Search box */}
           <div className="search-box-wrapper">
-            <Search className="search-box-icon" />
+            <MagnifyingGlassIcon className="search-box-icon" />
             <input
               type="text"
               placeholder="Search tasks..."
@@ -241,7 +241,7 @@ export const Tasks = () => {
             title="Refresh tasks"
             className="icon-action-btn"
           >
-            <RefreshCw style={{ width: 14, height: 14 }} className={loading ? 'animate-spin' : ''} />
+            <ArrowPathIcon style={{ width: 14, height: 14 }} className={loading ? 'animate-spin' : ''} />
           </button>
 
           {/* Add Task Button */}
@@ -249,7 +249,7 @@ export const Tasks = () => {
             onClick={() => setShowCreateTaskModal(true)}
             className="btn-primary-action"
           >
-            <Plus style={{ width: 16, height: 16 }} />
+            <PlusIcon style={{ width: 16, height: 16 }} />
             <span>Add Task</span>
           </button>
         </div>
@@ -265,9 +265,9 @@ export const Tasks = () => {
           }`}
         >
           {feedback.type === 'error' ? (
-            <AlertCircle style={{ width: 16, height: 16, flexShrink: 0 }} />
+            <ExclamationCircleIcon style={{ width: 16, height: 16, flexShrink: 0 }} />
           ) : (
-            <CheckCircle2 style={{ width: 16, height: 16, flexShrink: 0 }} />
+            <CheckCircleIcon style={{ width: 16, height: 16, flexShrink: 0 }} />
           )}
           <span>{feedback.message}</span>
         </div>
