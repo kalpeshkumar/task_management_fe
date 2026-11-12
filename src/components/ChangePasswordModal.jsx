@@ -1,6 +1,7 @@
 // ============================================================================
 // CHANGE PASSWORD MODAL
 // Portaled dialog allowing authenticated users to change their password via POST /auth/change-password.
+// Includes show/hide password eye icon toggles on all password fields.
 // ============================================================================
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -10,6 +11,8 @@ import {
   ArrowPathIcon,
   CheckCircleIcon,
   LockClosedIcon,
+  EyeIcon,
+  EyeSlashIcon,
 } from '@heroicons/react/24/outline';
 import { authApi } from '../api/authApi';
 
@@ -17,6 +20,9 @@ export const ChangePasswordModal = ({ isOpen, onClose }) => {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -36,6 +42,9 @@ export const ChangePasswordModal = ({ isOpen, onClose }) => {
     setCurrentPassword('');
     setNewPassword('');
     setConfirmPassword('');
+    setShowCurrentPassword(false);
+    setShowNewPassword(false);
+    setShowConfirmPassword(false);
     setError('');
     setSuccess(false);
     onClose();
@@ -91,7 +100,7 @@ export const ChangePasswordModal = ({ isOpen, onClose }) => {
       }, 2000);
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.message || err.message || 'Failed to change password');
+      setError(err.response?.data?.status?.message || err.response?.data?.message || err.message || 'Failed to change password');
     } finally {
       setLoading(false);
     }
@@ -154,14 +163,40 @@ export const ChangePasswordModal = ({ isOpen, onClose }) => {
               <div className="login-input-wrapper">
                 <LockClosedIcon className="login-input-icon" />
                 <input
-                  type="password"
+                  type={showCurrentPassword ? 'text' : 'password'}
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
                   placeholder="Enter current password"
                   required
                   className="login-field-input"
-                  style={{ paddingLeft: '2.5rem' }}
+                  style={{ paddingLeft: '2.5rem', paddingRight: '2.5rem' }}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowCurrentPassword((prev) => !prev)}
+                  style={{
+                    position: 'absolute',
+                    right: '0.75rem',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: 'var(--slate-400)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '0.25rem',
+                  }}
+                  title={showCurrentPassword ? 'Hide password' : 'Show password'}
+                  tabIndex={-1}
+                >
+                  {showCurrentPassword ? (
+                    <EyeSlashIcon style={{ width: 18, height: 18 }} />
+                  ) : (
+                    <EyeIcon style={{ width: 18, height: 18 }} />
+                  )}
+                </button>
               </div>
             </div>
 
@@ -173,14 +208,40 @@ export const ChangePasswordModal = ({ isOpen, onClose }) => {
               <div className="login-input-wrapper">
                 <LockClosedIcon className="login-input-icon" />
                 <input
-                  type="password"
+                  type={showNewPassword ? 'text' : 'password'}
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="Min 8 chars, uppercase, lowercase, number, symbol"
                   required
                   className="login-field-input"
-                  style={{ paddingLeft: '2.5rem' }}
+                  style={{ paddingLeft: '2.5rem', paddingRight: '2.5rem' }}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword((prev) => !prev)}
+                  style={{
+                    position: 'absolute',
+                    right: '0.75rem',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: 'var(--slate-400)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '0.25rem',
+                  }}
+                  title={showNewPassword ? 'Hide password' : 'Show password'}
+                  tabIndex={-1}
+                >
+                  {showNewPassword ? (
+                    <EyeSlashIcon style={{ width: 18, height: 18 }} />
+                  ) : (
+                    <EyeIcon style={{ width: 18, height: 18 }} />
+                  )}
+                </button>
               </div>
               <p style={{ fontSize: '0.75rem', color: 'var(--slate-500)', marginTop: '0.25rem' }}>
                 Must be at least 8 characters and include uppercase, lowercase, number, and special character.
@@ -195,14 +256,40 @@ export const ChangePasswordModal = ({ isOpen, onClose }) => {
               <div className="login-input-wrapper">
                 <LockClosedIcon className="login-input-icon" />
                 <input
-                  type="password"
+                  type={showConfirmPassword ? 'text' : 'password'}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Re-enter new password"
                   required
                   className="login-field-input"
-                  style={{ paddingLeft: '2.5rem' }}
+                  style={{ paddingLeft: '2.5rem', paddingRight: '2.5rem' }}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword((prev) => !prev)}
+                  style={{
+                    position: 'absolute',
+                    right: '0.75rem',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: 'var(--slate-400)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '0.25rem',
+                  }}
+                  title={showConfirmPassword ? 'Hide password' : 'Show password'}
+                  tabIndex={-1}
+                >
+                  {showConfirmPassword ? (
+                    <EyeSlashIcon style={{ width: 18, height: 18 }} />
+                  ) : (
+                    <EyeIcon style={{ width: 18, height: 18 }} />
+                  )}
+                </button>
               </div>
             </div>
 
