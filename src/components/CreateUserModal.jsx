@@ -1,7 +1,8 @@
 // ============================================================================
-// CREATE USER MODAL
-// Portaled dialog allowing Admin to create users via POST /user/add with upfront password setup.
-// Includes Full Name, Email, Role, and Password with show/hide toggle.
+// CREATE USER MODAL (ADMIN ONLY)
+// Allows administrators to add an employee by entering their email address.
+// Password is NOT created or assigned by Admin; the employee sets their own password
+// during their first-time login onboarding flow.
 // ============================================================================
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -11,18 +12,15 @@ import {
   ArrowPathIcon,
   UserIcon,
   EnvelopeIcon,
-  LockClosedIcon,
-  EyeIcon,
-  EyeSlashIcon,
+  InformationCircleIcon,
+  ShieldCheckIcon,
 } from '@heroicons/react/24/outline';
-import { userApi } from '../api/userApi';
+import { userApi, deriveNameFromEmail } from '../api/userApi';
 
 export const CreateUserModal = ({ isOpen, onClose, onUserCreated }) => {
-  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
   const [role, setRole] = useState('USER');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -53,11 +51,9 @@ export const CreateUserModal = ({ isOpen, onClose, onUserCreated }) => {
   }, [handleKeyDown]);
 
   const handleClose = () => {
-    setName('');
     setEmail('');
+    setName('');
     setRole('USER');
-    setPassword('');
-    setShowPassword(false);
     setError('');
     onClose();
   };
@@ -68,54 +64,32 @@ export const CreateUserModal = ({ isOpen, onClose, onUserCreated }) => {
     e.preventDefault();
     setError('');
 
-    const trimmedName = name.trim();
     const trimmedEmail = email.trim();
-
-    if (!trimmedName) {
-      setError('Full name is required (letters only, min 2 chars)');
-      return;
-    }
-    if (!/^[A-Za-z\s]{2,}$/.test(trimmedName)) {
-      setError('Name must contain only alphabets and be at least 2 characters');
-      return;
-    }
     if (!trimmedEmail) {
-      setError('Email address is required');
+      setError('Employee email address is required');
       return;
     }
-    if (!password) {
-      setError('Password is required');
+
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(trimmedEmail)) {
+      setError('Please provide a valid email address (e.g. employee@company.com)');
       return;
     }
-    if (password.length < 8) {
-      setError('Password must be at least 8 characters long');
-      return;
-    }
-    if (!/[A-Z]/.test(password)) {
-      setError('Password must contain at least one uppercase letter');
-      return;
-    }
-    if (!/[a-z]/.test(password)) {
-      setError('Password must contain at least one lowercase letter');
-      return;
-    }
-    if (!/[0-9]/.test(password)) {
-      setError('Password must contain at least one number');
-      return;
-    }
-    if (!/[@$!%*?&#]/.test(password)) {
-      setError('Password must contain at least one special character (@, $, !, %, *, ?, &, #)');
+
+    const trimmedName = name.trim();
+    if (trimmedName && !/^[A-Za-z\s]{2,}$/.test(trimmedName)) {
+      setError('Name must contain only alphabetic letters (min 2 characters)');
       return;
     }
 
     try {
       setLoading(true);
       setError('');
+
       const res = await userApi.addUser({
-        name: trimmedName,
         email: trimmedEmail,
+        name: trimmedName || undefined,
         role,
-        password,
       });
 
       if (onUserCreated) {
@@ -124,7 +98,7 @@ export const CreateUserModal = ({ isOpen, onClose, onUserCreated }) => {
       handleClose();
     } catch (err) {
       console.error('Failed to create user:', err);
-      setError(err.response?.data?.message || err.message || 'Failed to create user');
+      setError(err.response?.data?.status?.message || err.response?.data?.message || err.message || 'Failed to create user');
     } finally {
       setLoading(false);
     }
@@ -151,9 +125,9 @@ export const CreateUserModal = ({ isOpen, onClose, onUserCreated }) => {
               <UserPlusIcon style={{ width: 20, height: 20 }} />
             </div>
             <div>
-              <h3 className="modal-title-text">Add New User</h3>
+              <h3 className="modal-title-text">Add New Employee</h3>
               <p className="modal-subtitle-text">
-                Create a student or administrator profile with login credentials
+                Invite a new employee using their registered email address
               </p>
             </div>
           </div>
@@ -170,29 +144,10 @@ export const CreateUserModal = ({ isOpen, onClose, onUserCreated }) => {
         <form onSubmit={handleSubmit} className="modal-form-content">
           {error && <div className="form-error-alert">{error}</div>}
 
-          {/* Full Name */}
+          {/* Email Address - Primary required field */}
           <div className="form-field-group">
             <label className="form-field-label">
-              Full Name <span className="form-required-star">*</span>
-            </label>
-            <div className="login-input-wrapper">
-              <UserIcon className="login-input-icon" />
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. Jane Doe (letters only)"
-                required
-                className="login-field-input"
-                style={{ paddingLeft: '2.5rem' }}
-              />
-            </div>
-          </div>
-
-          {/* Email Address */}
-          <div className="form-field-group">
-            <label className="form-field-label">
-              Email Address <span className="form-required-star">*</span>
+              Employee Email Address <span className="form-required-star">*</span>
             </label>
             <div className="login-input-wrapper">
               <EnvelopeIcon className="login-input-icon" />
@@ -200,8 +155,31 @@ export const CreateUserModal = ({ isOpen, onClose, onUserCreated }) => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="e.g. jane@studenttasks.com"
+                placeholder="e.g. employee@company.com"
                 required
+                autoFocus
+                className="login-field-input"
+                style={{ paddingLeft: '2.5rem' }}
+              />
+            </div>
+            <p style={{ fontSize: '0.75rem', color: 'var(--slate-500)', marginTop: '0.25rem' }}>
+              The employee will verify this email address during their first-time login to set their password.
+            </p>
+          </div>
+
+          {/* Full Name (Optional - auto-derived if omitted) */}
+          <div className="form-field-group">
+            <label className="form-field-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span>Full Name</span>
+              <span style={{ fontSize: '0.75rem', color: 'var(--slate-400)', fontWeight: 400 }}>Optional</span>
+            </label>
+            <div className="login-input-wrapper">
+              <UserIcon className="login-input-icon" />
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder={email ? `Auto: ${deriveNameFromEmail(email)}` : 'e.g. Jane Doe (auto-derived if empty)'}
                 className="login-field-input"
                 style={{ paddingLeft: '2.5rem' }}
               />
@@ -211,64 +189,37 @@ export const CreateUserModal = ({ isOpen, onClose, onUserCreated }) => {
           {/* Role Selection */}
           <div className="form-field-group">
             <label className="form-field-label">
-              User Role <span className="form-required-star">*</span>
+              Account Role
             </label>
             <select
               value={role}
               onChange={(e) => setRole(e.target.value)}
               className="form-select-input"
             >
-              <option value="USER">User / Employee (Standard Access)</option>
+              <option value="USER">Employee (Standard Access)</option>
               <option value="ADMIN">Administrator (Full Access)</option>
             </select>
           </div>
 
-          {/* Password */}
-          <div className="form-field-group">
-            <label className="form-field-label">
-              Password <span className="form-required-star">*</span>
-            </label>
-            <div className="login-input-wrapper">
-              <LockClosedIcon className="login-input-icon" />
-              <input
-                type={showPassword ? 'text' : 'password'}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Min 8 chars, uppercase, lowercase, number, symbol"
-                required
-                className="login-field-input"
-                style={{ paddingLeft: '2.5rem', paddingRight: '2.5rem' }}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword((prev) => !prev)}
-                style={{
-                  position: 'absolute',
-                  right: '0.75rem',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  color: 'var(--slate-400)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  padding: '0.25rem',
-                }}
-                title={showPassword ? 'Hide password' : 'Show password'}
-                tabIndex={-1}
-              >
-                {showPassword ? (
-                  <EyeSlashIcon style={{ width: 18, height: 18 }} />
-                ) : (
-                  <EyeIcon style={{ width: 18, height: 18 }} />
-                )}
-              </button>
-            </div>
-            <p style={{ fontSize: '0.75rem', color: 'var(--slate-500)', marginTop: '0.25rem' }}>
-              Must be at least 8 characters with uppercase, lowercase, number, and special character.
-            </p>
+          {/* Information Notice */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '0.625rem',
+              padding: '0.75rem',
+              borderRadius: '0.375rem',
+              backgroundColor: '#F8FAFC',
+              border: '1px solid var(--card-border)',
+              fontSize: '0.75rem',
+              color: 'var(--slate-600)',
+              lineHeight: 1.45,
+            }}
+          >
+            <InformationCircleIcon style={{ width: 16, height: 16, color: 'var(--teal-600)', flexShrink: 0, marginTop: '0.1rem' }} />
+            <span>
+              <strong>Employee Self-Setup:</strong> Administrators do not assign passwords. The employee will set and confirm their own password upon their first login.
+            </span>
           </div>
 
           {/* Footer Buttons */}
@@ -289,12 +240,12 @@ export const CreateUserModal = ({ isOpen, onClose, onUserCreated }) => {
               {loading ? (
                 <>
                   <ArrowPathIcon className="animate-spin" style={{ width: 16, height: 16 }} />
-                  <span>Creating User...</span>
+                  <span>Creating Account...</span>
                 </>
               ) : (
                 <>
                   <UserPlusIcon style={{ width: 16, height: 16 }} />
-                  <span>Create User</span>
+                  <span>Add Employee</span>
                 </>
               )}
             </button>

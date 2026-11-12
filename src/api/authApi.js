@@ -1,8 +1,10 @@
 import api from './axios';
 
 export const authApi = {
+  // Standard login with email and password
   login: async (email, password) => {
-    const response = await api.post('/auth/login', { email, password });
+    const cleanEmail = email?.trim().toLowerCase();
+    const response = await api.post('/auth/login', { email: cleanEmail, password });
     const resData = response.data?.data || response.data;
     return {
       token: resData?.token || resData?.accessToken,
@@ -12,6 +14,41 @@ export const authApi = {
       message: resData?.message || response.data?.status?.message,
       isPasswordSet: resData?.isPasswordSet,
     };
+  },
+
+  // First-time employee email verification
+  // Checks if the employee is registered and pending their initial password setup
+  verifyEmployeeEmail: async (email) => {
+    const cleanEmail = email?.trim().toLowerCase();
+    try {
+      const response = await api.post('/auth/login', {
+        email: cleanEmail,
+        password: '__first_time_setup_check__',
+      });
+      const resData = response.data?.data || response.data;
+      if (resData?.isPasswordSet === false) {
+        return {
+          verified: true,
+          isFirstTime: true,
+          message: 'Account verified! Please set your password.',
+        };
+      }
+      return {
+        verified: true,
+        isFirstTime: false,
+        message: 'A password has already been set for this account. Please sign in.',
+      };
+    } catch (err) {
+      const status = err.response?.status;
+      if (status === 401) {
+        return {
+          verified: false,
+          isFirstTime: false,
+          message: 'This email is not registered. Please check the spelling or ask your administrator to invite you.',
+        };
+      }
+      throw err;
+    }
   },
 
   getMe: async () => {
@@ -33,7 +70,7 @@ export const authApi = {
   // Request payload: { email, newPassword, confirmPassword }
   setPassword: async ({ email, newPassword, confirmPassword }) => {
     const response = await api.post('/auth/set-password', {
-      email,
+      email: email?.trim().toLowerCase(),
       newPassword,
       confirmPassword,
     });

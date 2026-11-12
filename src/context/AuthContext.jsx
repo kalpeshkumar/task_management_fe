@@ -40,6 +40,9 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     const data = await authApi.login(email, password);
+    if (data.isPasswordSet === false) {
+      return data;
+    }
     if (data.token) {
       setToken(data.token);
       localStorage.setItem('task_auth_token', data.token);
@@ -49,6 +52,17 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('task_auth_user', JSON.stringify(data.user));
     }
     return data;
+  };
+
+  const setSession = (newToken, newUser) => {
+    if (newToken) {
+      setToken(newToken);
+      localStorage.setItem('task_auth_token', newToken);
+    }
+    if (newUser) {
+      setUser(newUser);
+      localStorage.setItem('task_auth_user', JSON.stringify(newUser));
+    }
   };
 
   const logout = async () => {
@@ -74,6 +88,7 @@ export const AuthProvider = ({ children }) => {
         token,
         loading,
         login,
+        setSession,
         logout,
         isAdmin,
         isEmployee,

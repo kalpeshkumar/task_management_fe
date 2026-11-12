@@ -1,38 +1,38 @@
 import api from './axios';
-import bcrypt from 'bcryptjs';
+
+// Helper to derive a clean, valid alphabetic name from an email address
+// Ensures POST /user/add satisfies the backend's strict nameField schema (min 2 alphabets)
+export const deriveNameFromEmail = (rawEmail) => {
+  if (!rawEmail) return 'Employee User';
+  const prefix = String(rawEmail).split('@')[0] || '';
+  const cleaned = prefix.replace(/[^A-Za-z]/g, ' ').trim().replace(/\s+/g, ' ');
+  if (cleaned.length >= 2) {
+    return cleaned
+      .split(' ')
+      .filter((w) => w.length > 0)
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+      .join(' ');
+  }
+  return 'Employee User';
+};
 
 export const userApi = {
   // Add a new user (Requires ADMIN role)
-  // Request payload: { name, email, role, password }
-  addUser: async ({ name, email, role = 'USER', password }) => {
-    const cleanName = name?.trim();
+  // Request payload: { email, name, role }
+  // Admin only needs to provide email. Password is NOT assigned by Admin.
+  addUser: async ({ email, name, role = 'USER' }) => {
     const cleanEmail = email?.trim().toLowerCase();
+    const cleanName = (name && name.trim()) || deriveNameFromEmail(cleanEmail);
     const cleanRole = role ? String(role).toUpperCase() : 'USER';
 
-    // Step 1: Create user profile with strict Swagger CreateUserInput { name, email, role }
+    // Send strict CreateUserInput schema: { name, email, role }
+    // Created in DB with password: null and isPasswordSet: false
     const response = await api.post('/user/add', {
       name: cleanName,
       email: cleanEmail,
       role: cleanRole,
     });
-    const createdUser = response.data?.data || response.data;
-
-    // Step 2: If password is provided, securely hash with bcrypt and persist via Swagger PUT /user/:userId
-    // This bypasses the backend unawaited promise issue on /auth/set-password (which serializes Promise as "{}")
-    if (password && createdUser?.id) {
-      try {
-        const hashedPassword = await bcrypt.hash(password, 10);
-        await api.put(`/user/${createdUser.id}`, {
-          password: hashedPassword,
-          isPasswordSet: true,
-        });
-        createdUser.isPasswordSet = true;
-      } catch (pwErr) {
-        console.warn('Set initial password warning:', pwErr);
-      }
-    }
-
-    return createdUser;
+    return response.data?.data || response.data;
   },
 
   // Paginated user filter (Requires ADMIN role)
