@@ -1,12 +1,12 @@
 // ============================================================================
-// 4-STEP LOGIN & USER ONBOARDING AUTHENTICATION FLOW
-// Step 1: Enter Email & Identify User (Existing vs First-Time)
-// Step 2: Existing User Login (Password, Show/Hide, Remember Me, Forgot Password)
-// Step 3: First-Time User Password Setup (New Password, Confirm, Validation Rules)
-// Step 4: Password Setup Success (Success Icon, Message, Go to Dashboard)
+// TWO-STEP EMAIL / PASSWORD SIGN-IN FLOW
+// Step 1: Enter Email & Check Account Registration (Inline error if not found)
+// Step 2: Enter Password (Email read-only summary with "Change" & "Use different email",
+//         Inline error on password screen on wrong password)
+// Step 3 & 4: Seamless support for First-Time Setup & Password Success (for /set-password)
 // ============================================================================
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   CheckCircleIcon,
@@ -18,18 +18,17 @@ import {
   Square3Stack3DIcon,
   EyeIcon,
   EyeSlashIcon,
-  ShieldCheckIcon,
   SparklesIcon,
   ExclamationCircleIcon,
   CheckIcon,
-  PencilSquareIcon,
   QuestionMarkCircleIcon,
   XMarkIcon,
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../context/AuthContext';
-import { authApi } from '../api/authApi';
+import { AUTH_STEPS } from '../constants/authMessages';
+import { useSignInFlow } from '../hooks/useSignInFlow';
 
-export const Login = ({ initialStep = 1 }) => {
+export const Login = ({ initialStep = AUTH_STEPS.EMAIL }) => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { login, setSession } = useAuth();
@@ -42,210 +41,51 @@ export const Login = ({ initialStep = 1 }) => {
   const paramStep = searchParams.get('step')
     ? Number(searchParams.get('step'))
     : paramEmail
-    ? 3
+    ? AUTH_STEPS.SET_PASSWORD
     : initialStep;
 
-  // Flow State
-  const [step, setStep] = useState(paramStep); // 1 | 2 | 3 | 4
-  const [email, setEmail] = useState(paramEmail || savedEmail);
-  const [rememberMe, setRememberMe] = useState(Boolean(savedEmail));
+  // Single hook managing all state and transitions for the authentication flow
+  const {
+    step,
+    email,
+    setEmail,
+    password,
+    setPassword,
+    rememberMe,
+    setRememberMe,
+    showPassword,
+    setShowPassword,
+    newPassword,
+    setNewPassword,
+    confirmPassword,
+    setConfirmPassword,
+    showNewPassword,
+    setShowNewPassword,
+    showConfirmPassword,
+    setShowConfirmPassword,
+    isStep3Valid,
+    hasMinLength,
+    hasUpperCase,
+    hasLowerCase,
+    hasNumber,
+    hasSymbol,
+    passwordsMatch,
+    loading,
+    error,
+    showForgotModal,
+    setShowForgotModal,
+    goToEmailStep,
+    handleEmailSubmit,
+    handlePasswordSubmit,
+    handleSetPasswordSubmit,
+  } = useSignInFlow({
+    initialStep: paramStep,
+    initialEmail: paramEmail || savedEmail,
+    login,
+    setSession,
+    onSuccess: () => navigate('/dashboard'),
+  });
 
-  // Step 2 State
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-
-  // Step 3 State
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-  // Status & Feedback
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [showForgotModal, setShowForgotModal] = useState(false);
-
-  // Step 3 password validation checks
-  const hasMinLength = newPassword.length >= 8;
-  const hasUpperCase = /[A-Z]/.test(newPassword);
-  const hasLowerCase = /[a-z]/.test(newPassword);
-  const hasNumber = /[0-9]/.test(newPassword);
-  const hasSymbol = /[@$!%*?&#]/.test(newPassword);
-  const passwordsMatch = confirmPassword.length > 0 && newPassword === confirmPassword;
-
-  const isStep3Valid =
-    hasMinLength &&
-    hasUpperCase &&
-    hasLowerCase &&
-    hasNumber &&
-    hasSymbol &&
-    passwordsMatch;
-
-  // --------------------------------------------------------------------------
-  // STEP 1: SUBMIT EMAIL & IDENTIFY USER
-  // --------------------------------------------------------------------------
-  const handleEmailSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-
-    const trimmed = email.trim().toLowerCase();
-    if (!trimmed) {
-      setError('Please enter your email address to continue.');
-      return;
-    }
-
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!emailRegex.test(trimmed)) {
-      setError('Please provide a valid email format (e.g. name@company.com).');
-      return;
-    }
-
-    try {
-      setLoading(true);
-      // Query backend to detect whether user is logging in for the first time
-      const res = await authApi.identifyUser(trimmed);
-
-      if (res.isFirstTime) {
-        // User has no password set -> First-Time Password Setup
-        setStep(3);
-      } else {
-        // User exists with password -> Existing User Login
-        setStep(2);
-      }
-    } catch (err) {
-      console.error('Email check error:', err);
-      // On error, proceed to standard password step so login is never blocked
-      setStep(2);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // --------------------------------------------------------------------------
-  // STEP 2: EXISTING USER LOGIN
-  // --------------------------------------------------------------------------
-  const handleExistingUserLogin = async (e) => {
-    e.preventDefault();
-    setError('');
-
-    const trimmedEmail = email.trim().toLowerCase();
-    if (!password) {
-      setError('Please enter your password.');
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const res = await login(trimmedEmail, password);
-
-      // Handle edge-case where user reached Step 2 but password is not yet set
-      if (res?.isPasswordSet === false) {
-        setStep(3);
-        return;
-      }
-
-      // Remember me preference
-      if (rememberMe) {
-        localStorage.setItem('task_remember_email', trimmedEmail);
-      } else {
-        localStorage.removeItem('task_remember_email');
-      }
-
-      // Redirect to appropriate dashboard
-      navigate('/dashboard');
-    } catch (err) {
-      console.error('Login error:', err);
-      const msg =
-        err.response?.data?.status?.message ||
-        err.response?.data?.message ||
-        'Invalid email or password. Please verify and try again.';
-      setError(msg);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // --------------------------------------------------------------------------
-  // STEP 3: FIRST-TIME USER PASSWORD SETUP
-  // --------------------------------------------------------------------------
-  const handleSetPasswordSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-
-    const trimmedEmail = email.trim().toLowerCase();
-    if (!trimmedEmail) {
-      setError('Email address is missing. Please start from Step 1.');
-      setStep(1);
-      return;
-    }
-
-    if (!hasMinLength) {
-      setError('Password must be at least 8 characters long.');
-      return;
-    }
-    if (!hasUpperCase) {
-      setError('Password must contain at least one uppercase letter (A-Z).');
-      return;
-    }
-    if (!hasLowerCase) {
-      setError('Password must contain at least one lowercase letter (a-z).');
-      return;
-    }
-    if (!hasNumber) {
-      setError('Password must contain at least one number (0-9).');
-      return;
-    }
-    if (!hasSymbol) {
-      setError('Password must contain at least one special character (@, $, !, %, *, ?, &, #).');
-      return;
-    }
-    if (newPassword !== confirmPassword) {
-      setError('Passwords do not match. Please verify both fields.');
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const res = await authApi.setPassword({
-        email: trimmedEmail,
-        newPassword,
-        confirmPassword,
-      });
-
-      // Update session in AuthContext and localStorage
-      if (res?.token) {
-        if (setSession) {
-          setSession(res.token, res.user);
-        } else {
-          localStorage.setItem('task_auth_token', res.token);
-          if (res.user) {
-            localStorage.setItem('task_auth_user', JSON.stringify(res.user));
-          }
-        }
-      }
-
-      if (rememberMe) {
-        localStorage.setItem('task_remember_email', trimmedEmail);
-      }
-
-      // Transition to Step 4 Success Screen
-      setStep(4);
-    } catch (err) {
-      console.error('Password setup error:', err);
-      const msg =
-        err.response?.data?.status?.message ||
-        err.response?.data?.message ||
-        err.message ||
-        'Failed to set password. Please ensure password rules are satisfied.';
-      setError(msg);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // --------------------------------------------------------------------------
-  // STEP 4: GO TO DASHBOARD
-  // --------------------------------------------------------------------------
   const handleGoToDashboard = () => {
     navigate('/dashboard');
   };
@@ -273,49 +113,55 @@ export const Login = ({ initialStep = 1 }) => {
             gap: '0.5rem',
             marginBottom: '1rem',
           }}
+          aria-label="Sign-in step progress"
         >
           <span
             style={{
-              width: step === 1 ? '1.5rem' : '0.5rem',
+              width: step === AUTH_STEPS.EMAIL ? '1.5rem' : '0.5rem',
               height: '0.5rem',
               borderRadius: '9999px',
-              backgroundColor: step === 1 ? 'var(--brand-primary)' : 'rgba(255,255,255,0.25)',
+              backgroundColor:
+                step === AUTH_STEPS.EMAIL ? 'var(--brand-primary)' : 'rgba(255,255,255,0.25)',
               transition: 'all 0.25s ease',
             }}
           />
           <span
             style={{
-              width: step === 2 || step === 3 ? '1.5rem' : '0.5rem',
+              width: step === AUTH_STEPS.PASSWORD ? '1.5rem' : '0.5rem',
               height: '0.5rem',
               borderRadius: '9999px',
-              backgroundColor: step === 2 || step === 3 ? 'var(--brand-primary)' : 'rgba(255,255,255,0.25)',
+              backgroundColor:
+                step === AUTH_STEPS.PASSWORD ? 'var(--brand-primary)' : 'rgba(255,255,255,0.25)',
               transition: 'all 0.25s ease',
             }}
           />
-          <span
-            style={{
-              width: step === 4 ? '1.5rem' : '0.5rem',
-              height: '0.5rem',
-              borderRadius: '9999px',
-              backgroundColor: step === 4 ? '#16A34A' : 'rgba(255,255,255,0.25)',
-              transition: 'all 0.25s ease',
-            }}
-          />
+          {(step === AUTH_STEPS.SET_PASSWORD || step === AUTH_STEPS.SUCCESS) && (
+            <span
+              style={{
+                width: '1.5rem',
+                height: '0.5rem',
+                borderRadius: '9999px',
+                backgroundColor:
+                  step === AUTH_STEPS.SUCCESS ? '#16A34A' : 'var(--brand-primary)',
+                transition: 'all 0.25s ease',
+              }}
+            />
+          )}
         </div>
 
         {/* Main Authentication Card Box */}
         <div className="login-box">
           {error && (
-            <div className="login-error-alert">
+            <div className="login-error-alert" role="alert">
               <ExclamationCircleIcon style={{ width: 16, height: 16, flexShrink: 0 }} />
               <span>{error}</span>
             </div>
           )}
 
           {/* ================================================================
-              STEP 1: ENTER EMAIL
+              STEP 1: ENTER EMAIL (Check registered status)
               ================================================================ */}
-          {step === 1 && (
+          {step === AUTH_STEPS.EMAIL && (
             <div>
               <h2 className="login-box-heading">Sign In</h2>
               <p className="login-box-sub">Enter your email address to continue to your account</p>
@@ -359,9 +205,9 @@ export const Login = ({ initialStep = 1 }) => {
           )}
 
           {/* ================================================================
-              STEP 2: EXISTING USER LOGIN (ENTER PASSWORD)
+              STEP 2: ENTER PASSWORD (Read-only email summary with Change link)
               ================================================================ */}
-          {step === 2 && (
+          {step === AUTH_STEPS.PASSWORD && (
             <div>
               <h2 className="login-box-heading">Welcome Back</h2>
               <p className="login-box-sub">Enter your password to sign in</p>
@@ -381,16 +227,22 @@ export const Login = ({ initialStep = 1 }) => {
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', overflow: 'hidden' }}>
                   <EnvelopeIcon style={{ width: 15, height: 15, color: 'var(--slate-400)', flexShrink: 0 }} />
-                  <span style={{ fontSize: '0.8125rem', color: 'var(--slate-700)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <span
+                    style={{
+                      fontSize: '0.8125rem',
+                      color: 'var(--slate-700)',
+                      fontWeight: 500,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
                     {email}
                   </span>
                 </div>
                 <button
                   type="button"
-                  onClick={() => {
-                    setStep(1);
-                    setError('');
-                  }}
+                  onClick={goToEmailStep}
                   style={{
                     background: 'none',
                     border: 'none',
@@ -407,7 +259,7 @@ export const Login = ({ initialStep = 1 }) => {
                 </button>
               </div>
 
-              <form onSubmit={handleExistingUserLogin} className="login-form">
+              <form onSubmit={handlePasswordSubmit} className="login-form">
                 <div className="login-input-group">
                   <label className="form-field-label">Password</label>
                   <div className="login-input-wrapper">
@@ -517,13 +369,18 @@ export const Login = ({ initialStep = 1 }) => {
                 </button>
               </form>
 
-              <div style={{ textAlign: 'center', marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid var(--card-border)' }}>
+              {/* Use a different email link */}
+              <div
+                style={{
+                  textAlign: 'center',
+                  marginTop: '1.25rem',
+                  paddingTop: '1rem',
+                  borderTop: '1px solid var(--card-border)',
+                }}
+              >
                 <button
                   type="button"
-                  onClick={() => {
-                    setStep(1);
-                    setError('');
-                  }}
+                  onClick={goToEmailStep}
                   style={{
                     background: 'none',
                     border: 'none',
@@ -545,7 +402,7 @@ export const Login = ({ initialStep = 1 }) => {
           {/* ================================================================
               STEP 3: FIRST-TIME USER PASSWORD SETUP
               ================================================================ */}
-          {step === 3 && (
+          {step === AUTH_STEPS.SET_PASSWORD && (
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.25rem' }}>
                 <span
@@ -766,10 +623,7 @@ export const Login = ({ initialStep = 1 }) => {
               <div style={{ textAlign: 'center', marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid var(--card-border)' }}>
                 <button
                   type="button"
-                  onClick={() => {
-                    setStep(1);
-                    setError('');
-                  }}
+                  onClick={goToEmailStep}
                   style={{
                     background: 'none',
                     border: 'none',
@@ -791,7 +645,7 @@ export const Login = ({ initialStep = 1 }) => {
           {/* ================================================================
               STEP 4: PASSWORD SETUP SUCCESS
               ================================================================ */}
-          {step === 4 && (
+          {step === AUTH_STEPS.SUCCESS && (
             <div style={{ textAlign: 'center', padding: '1rem 0' }}>
               <div
                 style={{
@@ -912,3 +766,5 @@ export const Login = ({ initialStep = 1 }) => {
     </div>
   );
 };
+
+export default Login;

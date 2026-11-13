@@ -1,4 +1,5 @@
 import api from './axios';
+import { AUTH_MESSAGES } from '../constants/authMessages';
 
 export const authApi = {
   // Standard login with email and password
@@ -11,14 +12,14 @@ export const authApi = {
       accessToken: resData?.accessToken || resData?.token,
       refreshToken: resData?.refreshToken,
       user: resData?.user,
-      message: resData?.message || response.data?.status?.message,
+      message: resData?.message || response.data?.status?.message || AUTH_MESSAGES.LOGIN_SUCCESS,
       isPasswordSet: resData?.isPasswordSet,
     };
   },
 
-  // Step 1 identification: determines if a user is logging in for the first time
-  // using the existing backend POST /auth/login response without changing any backend code.
-  identifyUser: async (email) => {
+  // Step 1: Check whether an email is registered by reusing the existing POST /auth/login endpoint
+  // without changing any backend code or adding new endpoints.
+  checkEmail: async (email) => {
     const cleanEmail = email?.trim().toLowerCase();
     try {
       const response = await api.post('/auth/login', {
@@ -26,14 +27,64 @@ export const authApi = {
         password: '__identify_check__',
       });
       const resData = response.data?.data || response.data;
-      if (resData?.isPasswordSet === false) {
-        return { isFirstTime: true };
-      }
-      return { isFirstTime: false };
+      return {
+        exists: true,
+        isPasswordSet: resData?.isPasswordSet !== false,
+      };
     } catch (err) {
-      // 401 Unauthorized indicates user has a password or credentials were required
-      return { isFirstTime: false };
+      const status = err.response?.status;
+      const backendMsg =
+        err.response?.data?.status?.message ||
+        err.response?.data?.message ||
+        '';
+
+      // 404 Not Found: User does not exist in the database
+      if (status === 404 || /user not found/i.test(backendMsg)) {
+        return {
+          exists: false,
+          error: AUTH_MESSAGES.USER_NOT_FOUND,
+        };
+      }
+
+      // 401 Unauthorized: User exists in database and has a password set
+      if (status === 401) {
+        return {
+          exists: true,
+          isPasswordSet: true,
+        };
+      }
+
+      // 403 Forbidden: User exists but is inactive
+      if (status === 403) {
+        return {
+          exists: false,
+          inactive: true,
+          error: AUTH_MESSAGES.ACCOUNT_INACTIVE,
+        };
+      }
+
+      // 500: In case the endpoint was invoked without password or internal issue
+      if (status === 500 && !/user not found/i.test(backendMsg)) {
+        // Backend only reaches password comparison (and potential 500) if the user exists
+        return {
+          exists: true,
+          isPasswordSet: true,
+        };
+      }
+
+      // Re-throw any connection/network error so caller can display NETWORK_ERROR
+      throw err;
     }
+  },
+
+  // Step 1 legacy alias: determines if user exists and if logging in for the first time
+  identifyUser: async (email) => {
+    const res = await authApi.checkEmail(email);
+    return {
+      exists: res.exists,
+      isFirstTime: res.isPasswordSet === false,
+      error: res.error,
+    };
   },
 
   // First-time employee email verification
@@ -59,11 +110,18 @@ export const authApi = {
       };
     } catch (err) {
       const status = err.response?.status;
-      if (status === 401) {
+      if (status === 404) {
         return {
           verified: false,
           isFirstTime: false,
-          message: 'This email is not registered. Please check the spelling or ask your administrator to invite you.',
+          message: AUTH_MESSAGES.USER_NOT_FOUND,
+        };
+      }
+      if (status === 401) {
+        return {
+          verified: true,
+          isFirstTime: false,
+          message: 'A password has already been set for this account. Please sign in.',
         };
       }
       throw err;
@@ -99,7 +157,7 @@ export const authApi = {
       accessToken: resData?.accessToken || resData?.token,
       refreshToken: resData?.refreshToken,
       user: resData?.user,
-      message: resData?.message || response.data?.status?.message,
+      message: resData?.message || response.data?.status?.message || AUTH_MESSAGES.PASSWORD_SET_SUCCESS,
     };
   },
 
