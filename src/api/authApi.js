@@ -16,8 +16,27 @@ export const authApi = {
     };
   },
 
+  // Step 1 identification: determines if a user is logging in for the first time
+  // using the existing backend POST /auth/login response without changing any backend code.
+  identifyUser: async (email) => {
+    const cleanEmail = email?.trim().toLowerCase();
+    try {
+      const response = await api.post('/auth/login', {
+        email: cleanEmail,
+        password: '__identify_check__',
+      });
+      const resData = response.data?.data || response.data;
+      if (resData?.isPasswordSet === false) {
+        return { isFirstTime: true };
+      }
+      return { isFirstTime: false };
+    } catch (err) {
+      // 401 Unauthorized indicates user has a password or credentials were required
+      return { isFirstTime: false };
+    }
+  },
+
   // First-time employee email verification
-  // Checks if the employee is registered and pending their initial password setup
   verifyEmployeeEmail: async (email) => {
     const cleanEmail = email?.trim().toLowerCase();
     try {

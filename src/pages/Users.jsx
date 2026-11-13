@@ -365,7 +365,7 @@ export const Users = () => {
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
         onUserCreated={() => {
-          showFeedback('User account created successfully with password set!', 'success');
+          showFeedback('User account created successfully! The employee can set their password on first login.', 'success');
           loadUsers();
         }}
       />
